@@ -268,7 +268,7 @@ async function create_xs_ys_predict_1_datapoint() {
 		ys_2d_arr = ys_2d_arr.concat(ys_2d_train[i]); 
 	}
 
-	ys_1d_arr = await tf.tensor(ys_1d_arr);
+	var ys_1d_arr = await tf.tensor(ys_2d_arr).flatten();
 	console.log('Tensorflow tensor (Y train) - ys_1d_arr: ', ys_1d_arr);
 	
 	// Test shape
