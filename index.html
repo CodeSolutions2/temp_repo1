@@ -271,12 +271,8 @@ async function create_xs_ys_predict_1_datapoint() {
 	// flatten the 2D tensor as a 1Dtensor
 	var ys_1d_arr = await tf.tensor2d(ys_2d_arr, [ys_2d_arr.length, 1], 'int32').flatten();  
 	console.log('Tensorflow tensor (Y train) - ys_1d_arr: ', ys_1d_arr);
-	
-	// Test shape
-	shap = await shape(ys_1d_arr);  
-	console.log('Shape ys_1d_arr: ', shap);
 
-	num_of_outputs = length_letters_org;    // 26
+	num_of_outputs = 1;
   
 	var ys_train_tf = tf.oneHot(ys_1d_arr, num_of_outputs);  // Array [260, 26]
 	console.log('ys_train_tf oneHot: ', ys_train_tf);
