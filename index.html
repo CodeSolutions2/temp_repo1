@@ -268,18 +268,18 @@ async function create_xs_ys_predict_1_datapoint() {
 		ys_2d_arr = ys_2d_arr.concat(ys_2d_train[i]); 
 	}
 
-	// flatten the 2D tensor as a 1Dtensor
-	var ys_1d_arr = await tf.tensor2d(ys_2d_arr, [ys_2d_arr.length, 1], 'int32').flatten();  
+	ys_1d_arr = await tf.tensor(ys_1d_arr);
 	console.log('Tensorflow tensor (Y train) - ys_1d_arr: ', ys_1d_arr);
+	
+	// Test shape
+	shap = await shape(ys_1d_arr);  
+	console.log('Shape ys_1d_arr: ', shap);
 
 	num_of_outputs = 1;
-  
-	var ys_train_tf = tf.oneHot(ys_1d_arr, num_of_outputs);  // Array [260, 26]
-	console.log('ys_train_tf oneHot: ', ys_train_tf);
 
 	// -------------------------------------------------
 
-  // [Test] Assign Y to a 1D tensor
+  	// [Test] Assign Y to a 1D tensor
 	console.log('ys_2d_test: ', ys_2d_test);	// [num_of_features, batch_size] = [ 1, 129 ]
 
 	// So, need to stack [batch_size] per [feature]
