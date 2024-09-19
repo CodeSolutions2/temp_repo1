@@ -268,12 +268,12 @@ async function create_xs_ys_predict_1_datapoint() {
 		ys_2d_arr = ys_2d_arr.concat(ys_2d_train[i]); 
 	}
 
-	var ys_1d_arr = await tf.tensor(ys_2d_arr).flatten();
+	var ys_train_tf = await tf.tensor(ys_2d_arr).flatten();
 	console.log('Tensorflow tensor (Y train) - ys_1d_arr: ', ys_1d_arr);
 	
 	// Test shape
-	shap = await shape(ys_1d_arr);  
-	console.log('Shape ys_1d_arr: ', shap);
+	shap = await shape(ys_train_tf);  
+	console.log('Shape ys_train_tf: ', shap);
 
 	num_of_outputs = 1;
 
