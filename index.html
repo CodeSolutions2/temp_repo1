@@ -166,7 +166,7 @@ async function create_xs_ys_predict_1_datapoint() {
   var ys_2d_test = [];
 
 	// The number of batch_size to keep for testing the model
-	batch_size_test = Math.floor(batch_size*0.05);
+	batch_size_test = Math.floor(batch_size*0.1);
 	console.log("batch_size_test: ", batch_size_test);
 	
 	for (var feats=0; feats<num_of_features; feats++) {
@@ -189,7 +189,7 @@ async function create_xs_ys_predict_1_datapoint() {
 			if (num_of_desired_predictions > batch_size-batch_size_test) {
 				// Test data set
 				x_temp_test.push(temp_datappoints_arr.slice(st, stop-1));
-        y_temp_test.push(temp_datappoints_arr.slice(stop-1));
+				y_temp_test.push(temp_datappoints_arr.slice(stop-1));
 			} else {
 				// Train data set
 				x_temp.push(temp_datappoints_arr.slice(st, stop-1)); // from [0-24th] value
