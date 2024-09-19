@@ -300,6 +300,11 @@ async function create_xs_ys_predict_1_datapoint() {
 
 
 
+
+
+
+
+	
 // -----------------------------------------------
 // [1] model outline: case 0 - predictions for all the data points in the timestep per batch (most basic model)
 // returnSequences: true
@@ -358,7 +363,8 @@ async function modelDefinition_prediction_per_datapoint() {
 	console.log("input_lstm0: ", input_lstm0.name);
 	
 	console.log("Input - LSTM0: ", JSON.stringify(input_lstm0.shape)); 
-	// Input - LSTM0: [m=batch_size=129, n_y=units=num_of_lstm_outpus=1] 
+	// Input - LSTM0: [m=batch_size=18, n_y=units=num_of_lstm_outpus=1] // prediction per timestep
+	// Input - LSTM0: [m=batch_size=18, T_x=timesteps=11, n_a=n_y=units=num_of_lstm_outpus=22] // prediction per datapoint
 	
 	// This size is the shape of y_total_forward_pass per timestep
 
@@ -381,7 +387,10 @@ async function modelDefinition_prediction_per_datapoint() {
 
 		// batchSize = batch_size gives Input - LSTM:  [129,129]
 		batchSize: batch_size,
-		inputShape: [timesteps, num_of_features],
+		
+		// inputShape: [timesteps, num_of_features],  // prediction per timestep
+		inputShape: [timesteps, n_a],  // prediction per datapoint
+		
 		stateful: false,
 		// If stateful=true it gives Error: Input 0 is incompatible with layer lstm_LSTM1: expected shape=168,,1, found shape=32,3,1.
 		activation: 'tanh',
@@ -409,9 +418,9 @@ async function modelDefinition_prediction_per_datapoint() {
 	// }
   // 
 	const lstm2 = tf.layers.lstm({
-    // cells: cells,
+		// cells: cells,
 		recurrentActivation: 'hardSigmoid',
-		units: n_a,
+		units: 1,
     
 		// receive a prediction per timestep
 		returnSequences: false,
@@ -424,7 +433,10 @@ async function modelDefinition_prediction_per_datapoint() {
 
 		// batchSize = batch_size gives Input - LSTM:  [129,129]
 		batchSize: batch_size,
-		inputShape: [timesteps, num_of_features],
+		
+		// inputShape: [timesteps, num_of_features],  // prediction per timestep
+		inputShape: [timesteps, n_a],  // prediction per datapoint
+		
 		stateful: false,
 		// If stateful=true it gives Error: Input 0 is incompatible with layer lstm_LSTM1: expected shape=168,,1, found shape=32,3,1.
 		activation: 'tanh',
@@ -599,8 +611,8 @@ async function modelDefinition_prediction_per_timestep() {
 
 	// -----------
 	
-	const input_lstm0_lstm1_lstm2_dense = denseLayer1.apply(lstm.apply(input));
-	console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense: ", JSON.stringify(input_lstm0_lstm1_lstm2.shape)); 
+	const input_lstm0_lstm1_lstm2_dense = denseLayer1.apply(input_lstm0_lstm1_lstm2);
+	console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense: ", JSON.stringify(input_lstm0_lstm1_lstm2_dense.shape)); 
 	// [null, num_of_outputs=1] OR [batch_size=19, num_of_outputs=1]
 
 	// -----------------------
