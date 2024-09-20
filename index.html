@@ -104,14 +104,14 @@ async function run_per_datapoint() {
 	var obj = await create_xs_ys_predict_1_datapoint();
 	// obj = {xs_train: xs_train_tf, ys_train: ys_train_tf, xs_test: xs_test_3d_jsArr, ys_test: ys_test_1d_jsArr};
 	
-	lstmModel = await modelDefinition_prediction_per_datapoint();
+	// lstmModel = await modelDefinition_prediction_per_datapoint();
 
-	var xs_train_tf = obj.xs_train;
-	var ys_train_tf = obj.ys_train;
-	var xs_test_js = obj.xs_test;
-  var ys_test_js = obj.ys_test;
+	// var xs_train_tf = obj.xs_train;
+	// var ys_train_tf = obj.ys_train;
+	// var xs_test_js = obj.xs_test;
+	// var ys_test_js = obj.ys_test;
   
-	await compile_train_predict_lstm(xs_train_tf, ys_train_tf, xs_test_js, ys_test_js, lstmModel);
+	// await compile_train_predict_lstm(xs_train_tf, ys_train_tf, xs_test_js, ys_test_js, lstmModel);
 }
 
 async function run_per_timestep() {
@@ -155,7 +155,7 @@ async function create_xs_ys_predict_1_datapoint() {
 	num_of_features = xs_2d_arr.length;  // num_of_features_OR_colnum
 	console.log('num_of_features: ', num_of_features);
 
-	batch_size = Math.floor(xs_2d_arr[0].length / timesteps);
+	batch_size = Math.floor(xs_2d_arr[0].length / timesteps); // 20
 	console.log('batch_size: ', batch_size);
 	
 	// -------------------------------------------------
@@ -163,11 +163,11 @@ async function create_xs_ys_predict_1_datapoint() {
 	var xs_3d_train = [];
 	var ys_2d_train = [];
 	var xs_3d_test = [];
-  var ys_2d_test = [];
+  	var ys_2d_test = [];
 
 	// The number of batch_size to keep for testing the model
 	batch_size_test = Math.floor(batch_size*0.1);
-	console.log("batch_size_test: ", batch_size_test);
+	console.log("batch_size_test: ", batch_size_test); // 2
 	
 	for (var feats=0; feats<num_of_features; feats++) {
 		// for the organization, features are rows
@@ -178,12 +178,14 @@ async function create_xs_ys_predict_1_datapoint() {
 		var x_temp = [];
 		var y_temp = [];
 		var x_temp_test = [];
-    var y_temp_test = [];
+		var y_temp_test = [];
 
 		// loop over the data by batch_size, to cut the data by [batch_size] number of [timesteps] 
 		for (var num_of_desired_predictions=0; num_of_desired_predictions<batch_size; num_of_desired_predictions++) {
 			var st = num_of_desired_predictions * timesteps;
 			var stop = st + timesteps;
+			
+			console.log('num_of_desired_predictions: ', num_of_desired_predictions);
 			
 			// Separate train and test data
 			if (num_of_desired_predictions > batch_size-batch_size_test) {
@@ -201,13 +203,11 @@ async function create_xs_ys_predict_1_datapoint() {
 				}
 			}
 		}
-		console.log("x_train per feature: ", x_temp)
 		xs_3d_train.push(x_temp);
-    console.log("y_train per feature: ", y_temp)
 		ys_2d_train.push(y_temp);
     
 		xs_3d_test.push(x_temp_test);
-    ys_2d_test.push(y_temp_test);
+		ys_2d_test.push(y_temp_test);
 	}
 	
 	// Train shape1
@@ -642,10 +642,14 @@ async function modelDefinition_prediction_per_timestep() {
 // [2] compile_train_predict model
 // -----------------------------------------------
 async function compile_train_predict_lstm(xs_train_tf, ys_train_tf, xs_test_js, ys_test_js, lstmModel) {
+
+	console.log('here0');
 	
 	await lstmModel.compile({optimizer: tf.train.adam(), loss: tf.losses.meanSquaredError, metrics: ['mse'],});
 
 	epochs = document.getElementById('epochs').value;
+
+	console.log('here1');
 	
 	const history = await lstmModel.fit(xs_train_tf, ys_train_tf, { 
 				batchSize: batch_size, 
