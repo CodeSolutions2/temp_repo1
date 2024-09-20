@@ -313,32 +313,16 @@ async function modelDefinition_prediction_per_datapoint() {
 	// -----------------------
   
 	var n_a = 2*timesteps;  // timesteps;
-	var num_of_outputs = timesteps; // a value from 1 to timesteps, or the number of data points to predict into the future
+	var num_of_outputs = 1; // a value from 1 to timesteps, or the number of data points to predict into the future
 
-	// -----------------------
-	
+  // -----------------------
+  
 	// Input layer
-	
-	// Please provide either a `shape` or `batchShape` argument to Input, but not both.
-	// const input = tf.input({shape: [timesteps, num_of_features]});
-	// OR
-	// If an RNN is stateful, it needs to know its batch size. Specify the batch size of your input tensors:
-	// - If using a Sequential model, specify the batch size by passing a `batchInputShape` option to your first layer.
-	// - If using the functional API, specify the batch size by passing a `batchShape` option to your Input layer.
-	// OR
 	const input = tf.input({batchShape: [batch_size, timesteps, num_of_features]});
-	// OR
-	// const model_input = tf.input({shape: [timesteps, num_of_features]});
-	// const inputLayer = tf.layers.inputLayer({
-	// 	inputShape: [timesteps, num_of_features],
-	// 	batchSize: batch_size
-	// });
-	// const input = inputLayer.apply(model_input);
-	// Cannot pass any input to an InputLayer's apply() method. InputLayer name: input2
+	console.log("input: ", input.name);
 	
 	console.log("Input: ", JSON.stringify(input.shape));
-	// Input: [batch_size=18, 11=timesteps, 1=num_of_features]
-	// Input:  [18,11,1]
+	// [129=batch_size, 1=timesteps, 1=num_of_features]
 
 	// -----------------------
 
@@ -352,14 +336,13 @@ async function modelDefinition_prediction_per_datapoint() {
 
 		// do not return the a and c matricies
 		returnState: false,
-    
 		kernelInitializer: 'heNormal',
 
+		// batchSize = batch_size gives Input - LSTM:  [129,129]
 		batchSize: batch_size,
 		inputShape: [timesteps, num_of_features],
-		
 		stateful: false,
-		
+		// If stateful=true it gives Error: Input 0 is incompatible with layer lstm_LSTM1: expected shape=168,,1, found shape=32,3,1.
 		activation: 'tanh',
 		trainable: true,
 		dropout: 0.2
@@ -370,8 +353,7 @@ async function modelDefinition_prediction_per_datapoint() {
 	console.log("input_lstm0: ", input_lstm0.name);
 	
 	console.log("Input - LSTM0: ", JSON.stringify(input_lstm0.shape)); 
-	// Input - LSTM0: [m=batch_size=18, n_y=units=num_of_lstm_outpus=1] // prediction per timestep
-	// Input - LSTM0: [m=batch_size=18, T_x=timesteps=11, n_a=n_y=units=num_of_lstm_outpus=22] // prediction per datapoint
+	// Input - LSTM0: [m=batch_size=129, n_y=units=num_of_lstm_outpus=1] 
 	
 	// This size is the shape of y_total_forward_pass per timestep
 
@@ -389,16 +371,13 @@ async function modelDefinition_prediction_per_datapoint() {
 
 		// do not return the a and c matricies
 		returnState: false,
-    
 		kernelInitializer: 'heNormal',
-		
+
+		// batchSize = batch_size gives Input - LSTM:  [129,129]
 		batchSize: batch_size,
-		
-		inputShape: [timesteps, num_of_features],  // prediction per timestep
-		// inputShape: [timesteps, n_a],  // prediction per datapoint
-		
+		inputShape: [timesteps, num_of_features],
 		stateful: false,
-		
+		// If stateful=true it gives Error: Input 0 is incompatible with layer lstm_LSTM1: expected shape=168,,1, found shape=32,3,1.
 		activation: 'tanh',
 		trainable: true,
 		dropout: 0.2
@@ -418,34 +397,22 @@ async function modelDefinition_prediction_per_datapoint() {
 	// -----------------------
 	
 	// LSTM layer 2
-  // var cells = [];
-	// for (var i=0; i<timesteps; i++) {
-	// 	  cells.push( tf.layers.lstmCell({units: n_a}) );
-	// }
-  // 
 	const lstm2 = tf.layers.lstm({
-		// cells: cells,
 		recurrentActivation: 'hardSigmoid',
 		units: n_a,
     
 		// receive a prediction per timestep
-		// returnSequences: true,
 		returnSequences: false,
 
-		// [returnState: false] means do not return the a and c matricies, so do not learn from the previous timesteps.
-    		// [returnState: true] means return the a and c matricies, so learn from the previous timesteps.
+		// do not return the a and c matricies
 		returnState: false,
-    
 		kernelInitializer: 'heNormal',
 
-		inputShape: [timesteps, num_of_features],  // prediction per timestep
-		// inputShape: [timesteps, n_a],  // prediction per datapoint ?
-		
+		// batchSize = batch_size gives Input - LSTM:  [129,129]
 		batchSize: batch_size,
-
-		// Stateful finds relationships from batch-to-batch for each [timesteps, num_of_features]. stateful=true requires that each layer is initialized.
+		inputShape: [timesteps, num_of_features],
 		stateful: false,
-		
+		// If stateful=true it gives Error: Input 0 is incompatible with layer lstm_LSTM1: expected shape=168,,1, found shape=32,3,1.
 		activation: 'tanh',
 		trainable: true,
 		dropout: 0.2
@@ -456,79 +423,25 @@ async function modelDefinition_prediction_per_datapoint() {
 	console.log("input_lstm0_lstm1_lstm2: ", input_lstm0_lstm1_lstm2.name);
 	
 	console.log("Input - LSTM0 - LSTM1 - LSTM2: ", JSON.stringify(input_lstm0_lstm1_lstm2.shape)); 
-	// Input - LSTM: [m=batch_size=18, n_y=units=num_of_lstm_outpus=1] 
+	// Input - LSTM: [m=batch_size=129, n_y=units=num_of_lstm_outpus=1] 
 	
 	// This size is the shape of y_total_forward_pass per timestep
 
 	// y_hat<t>_(n_y, batch_size)
 
 	// -----------------------
-  
-	// Dense layer
-	// const denseLayer1 = tf.layers.dense({
-	// 	units: 1,
-		// inputShape: [timesteps, n_a],   // prediction per timestep
-	// 	inputShape: [n_a],   // prediction per datapoint
-		// batchInputShape: [batch_size, n_a] // [batch_size, n_a, timesteps=T_x=22]
-	// });
-	// const denseLayer1 = tf.layers.dense({units: num_of_outputs});
-
-	
-
-	// const dense_timeDistributed = tf.layers.timeDistributed({
-	// 	layer: denseLayer1,
-		// inputShape: [timesteps, n_a], // Assuming output shape is [timesteps, units]
-	// });
-
-	// Apply timeDistributed layer to the model
-	// const input_lstm0_lstm1_lstm2_dense_timeDistributed = dense_timeDistributed.apply(input_lstm0_lstm1_lstm2);
-	// console.log("input_lstm0_lstm1_lstm2_dense_timeDistributed name: ", input_lstm0_lstm1_lstm2_dense_timeDistributed.name);
-	// console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed : ", JSON.stringify(input_lstm0_lstm1_lstm2_dense_timeDistributed.shape));
-
-	// Removes n_a  (how does it reduce n_a to 1? does it take the last point): 
-	// Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed :  [18,11,1]
-	// -----------
-
-	// Obtain the last datapoint in each batch_size, column (timesteps)
-	// const lastdatatpoint_per_Tx = tf.slice(input_lstm0_lstm1_lstm2_dense_timeDistributed, [0, -1, 0], [input_lstm0_lstm1_lstm2_dense_timeDistributed.shape[0], 1, input_lstm0_lstm1_lstm2_dense_timeDistributed.shape[2]]);
-	// lastdatatpoint_per_Tx is not a tensor 
-	// Argument 'x' passed to 'slice' must be a Tensor or TensorLike, but got 'e'
-	// OR
-	// const out = tf.tensor(input_lstm0_lstm1_lstm2_dense_timeDistributed);  // convert layer to tensor
-	// const lastdatatpoint_per_Tx = tf.slice(out, [0, -1, 0], [out.shape[0], 1, out.shape[2]]); // slice tensor
-	// const denseLayer2 = tf.layers.dense({ units: timesteps }); // convert tensor back to layer
-	// const lastdatatpoint_per_Tx_layer = denseLayer2.apply(lastdatatpoint_per_Tx); // convert tensor back to layer
-	//  values passed to tensor(values) must be a number/boolean/string or an array of numbers/booleans/strings, or a TypedArray
-	// OR
-	// const reshapeLayer = tf.layers.reshape({targetShape: [batch_size, timesteps]});
-	// const input_lstm0_lstm1_lstm2_dense_timeDistributed_Tx = reshapeLayer.apply(input_lstm0_lstm1_lstm2_dense_timeDistributed);
-	// Total size of new array must be unchanged. So if I start with a 3d shape, I have to end with a 3d shape.
-	// OR
-	// const flattenLayer = tf.layers.flatten({
-	// 	inputShape: [timesteps, 1],
-	// 	batchSize: batch_size
-	// }); 
-	// It will combine timesteps*1 to just timesteps, and reduce the dimension to [batch_size, timesteps]
-	// const input_lstm0_lstm1_lstm2_dense_timeDistributed_Tx = flattenLayer.apply(input_lstm0_lstm1_lstm2_dense_timeDistributed);
-	
-	// console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed - Tx : ", JSON.stringify(input_lstm0_lstm1_lstm2_dense_timeDistributed_Tx.shape));
-
-	// -----------------------
-
-
-
-	// -----------------------
 	
 	// Dense layer
 	// const denseLayer1 = tf.layers.dense({units: num_of_outputs, inputShape: [timesteps, num_of_features]});
 	const denseLayer1 = tf.layers.dense({units: num_of_outputs});
+
+	// -----------
 	
 	const input_lstm0_lstm1_lstm2_dense = denseLayer1.apply(input_lstm0_lstm1_lstm2);
 	console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense: ", JSON.stringify(input_lstm0_lstm1_lstm2_dense.shape)); 
 	// [null, num_of_outputs=1] OR [batch_size=19, num_of_outputs=1]
-	
-	// -----------------------
 
+	// -----------------------
 	
 	lstmModel = await tf.model({inputs: input, outputs: input_lstm0_lstm1_lstm2});
 	console.log('lstmModel: ', lstmModel);
