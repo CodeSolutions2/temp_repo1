@@ -482,7 +482,7 @@ async function modelDefinition_prediction_per_datapoint() {
 	// Apply timeDistributed layer to the model
 	const input_lstm0_lstm1_lstm2_dense_timeDistributed = dense_timeDistributed.apply(input_lstm0_lstm1_lstm2);
 	console.log("input_lstm0_lstm1_lstm2_dense_timeDistributed name: ", input_lstm0_lstm1_lstm2_dense_timeDistributed.name);
-	console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed : ", JSON.stringify(lastdatatpoint_per_Tx.shape));
+	console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed : ", JSON.stringify(input_lstm0_lstm1_lstm2_dense_timeDistributed.shape));
 	
 	// -----------
 
