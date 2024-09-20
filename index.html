@@ -188,7 +188,7 @@ async function create_xs_ys_predict_1_datapoint() {
 			console.log('num_of_desired_predictions: ', num_of_desired_predictions);
 			
 			// Separate train and test data
-			if (num_of_desired_predictions > batch_size-batch_size_test) {
+			if (num_of_desired_predictions > batch_size-batch_size_test-1) {
 				// Test data set
 				console.log('batch_size-batch_size_test: ', batch_size-batch_size_test);
 				x_temp_test.push(temp_datappoints_arr.slice(st, stop-1));
