@@ -185,14 +185,11 @@ async function create_xs_ys_predict_1_datapoint() {
 			var st = num_of_desired_predictions * timesteps;
 			var stop = st + timesteps;
 			
-			console.log('num_of_desired_predictions: ', num_of_desired_predictions);
-			
 			// Separate train and test data
 			if (num_of_desired_predictions > batch_size-batch_size_test-1) {
 				// Test data set
-				console.log('batch_size-batch_size_test: ', batch_size-batch_size_test);
 				x_temp_test.push(temp_datappoints_arr.slice(st, stop-1));
-				y_temp_test.push(temp_datappoints_arr.slice(stop-1));
+				y_temp_test.push(temp_datappoints_arr.at(stop-1));
 			} else {
 				// Train data set
 				x_temp.push(temp_datappoints_arr.slice(st, stop-1)); // from [0-(timesteps-2)th] value
@@ -202,11 +199,14 @@ async function create_xs_ys_predict_1_datapoint() {
 					console.log("x_temp: ", x_temp);
 					console.log("y_temp: ", y_temp);
 				}
+				if (num_of_desired_predictions == batch_size-batch_size_test) {
+					console.log("x_temp_test: ", x_temp_test);
+					console.log("y_temp_test: ", y_temp_test);
+				}
 			}
 		}
 		xs_3d_train.push(x_temp);
 		ys_2d_train.push(y_temp);
-    
 		xs_3d_test.push(x_temp_test);
 		ys_2d_test.push(y_temp_test);
 	}
@@ -223,8 +223,8 @@ async function create_xs_ys_predict_1_datapoint() {
 	// Test shape1
 	shap = await shape(xs_3d_test);  
 	console.log('Shape xs_3d_test: ', shap);  // [num_of_features, batch_size, timesteps] = [ 1, 1, 1 ]
-
-  shap = await shape(ys_2d_test);  
+	
+	shap = await shape(ys_2d_test);  
 	console.log('Shape ys_2d_test: ', shap);  // [num_of_features, batch_size]
 
 	// -------------------------------------------------
@@ -269,12 +269,14 @@ async function create_xs_ys_predict_1_datapoint() {
 		ys_2d_arr = ys_2d_arr.concat(ys_2d_train[i]); 
 	}
 
-	var ys_train_tf = await tf.tensor(ys_2d_arr).flatten();
+	// Test shape
+	shap = await shape(ys_2d_arr);  
+	console.log('Shape ys_2d_arr: ', shap);
+
+	var ys_train_tf = await tf.tensor(ys_2d_arr);
 	console.log('Tensorflow tensor (Y train) - ys_train_tf: ', ys_train_tf);
 	
-	// Test shape
-	shap = await shape(ys_train_tf);  
-	console.log('Shape ys_train_tf: ', shap);
+	// -------------------------------------------------
 
 	num_of_outputs = 1;
 
@@ -284,16 +286,12 @@ async function create_xs_ys_predict_1_datapoint() {
 	console.log('ys_2d_test: ', ys_2d_test);	// [num_of_features, batch_size] = [ 1, 129 ]
 
 	// So, need to stack [batch_size] per [feature]
-	var ys_test_2d_arr = [];
+	var ys_test_1d_jsArr = [];
 	for (var i=0; i<num_of_features; i++) { 
-		ys_test_2d_arr = ys_test_2d_arr.concat(ys_2d_test[i]); 
+		ys_test_1d_jsArr = ys_test_1d_jsArr.concat(ys_2d_test[i]); 
 	}
 
-	// flatten the 2D tensor as a 1Dtensor
-	var ys_test_1d_jsArr = await ys_test_2d_arr.flat(2);  
-	console.log('ys_test_1d_jsArr: ', ys_test_1d_jsArr);
-
-  // -------------------------------------------------
+  	// -------------------------------------------------
 	
 	return {xs_train: xs_train_tf, ys_train: ys_train_tf, xs_test: xs_test_3d_jsArr, ys_test: ys_test_1d_jsArr};
 }
