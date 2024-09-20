@@ -483,19 +483,24 @@ async function modelDefinition_prediction_per_datapoint() {
 	const input_lstm0_lstm1_lstm2_dense_timeDistributed = dense_timeDistributed.apply(input_lstm0_lstm1_lstm2);
 	console.log("input_lstm0_lstm1_lstm2_dense_timeDistributed name: ", input_lstm0_lstm1_lstm2_dense_timeDistributed.name);
 	console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed : ", JSON.stringify(input_lstm0_lstm1_lstm2_dense_timeDistributed.shape));
-	
+
+	// Removes n_a : Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed :  [18,11,1]
 	// -----------
 
 	// Obtain the last datapoint in each batch_size, column (timesteps)
-	const lastdatatpoint_per_Tx = tf.slice(input_lstm0_lstm1_lstm2_dense_timeDistributed, [0, -1, 0], [input_lstm0_lstm1_lstm2_dense_timeDistributed.shape[0], 1, input_lstm0_lstm1_lstm2_dense_timeDistributed.shape[2]]);
-	
-
-	// const input_lstm0_lstm1_lstm2_dense = denseLayer1.apply(input_lstm0_lstm1_lstm2);
-	console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed - Tx : ", JSON.stringify(lastdatatpoint_per_Tx.shape));
+	// const lastdatatpoint_per_Tx = tf.slice(input_lstm0_lstm1_lstm2_dense_timeDistributed, [0, -1, 0], [input_lstm0_lstm1_lstm2_dense_timeDistributed.shape[0], 1, input_lstm0_lstm1_lstm2_dense_timeDistributed.shape[2]]);
+	// lastdatatpoint_per_Tx is not a tensor 
+	// Argument 'x' passed to 'slice' must be a Tensor or TensorLike, but got 'e'
+	// OR
+	const out = tf.tensor(input_lstm0_lstm1_lstm2_dense_timeDistributed);  // convert layer to tensor
+	const lastdatatpoint_per_Tx = tf.slice(out, [0, -1, 0], [out.shape[0], 1, out.shape[2]]); // slice tensor
+	const denseLayer2 = tf.layers.dense({ units: timesteps }); // convert tensor back to layer
+	const lastdatatpoint_per_Tx_layer = denseLayer2.apply(lastdatatpoint_per_Tx); // convert tensor back to layer
+	console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed - Tx : ", JSON.stringify(lastdatatpoint_per_Tx_layer.shape));
 
 	// -----------------------
 	
-	lstmModel = await tf.model({inputs: input, outputs: lastdatatpoint_per_Tx});
+	lstmModel = await tf.model({inputs: input, outputs: lastdatatpoint_per_Tx_layer});
 	console.log('lstmModel: ', lstmModel);
 
 	return lstmModel;
