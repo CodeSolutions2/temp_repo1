@@ -443,7 +443,7 @@ async function modelDefinition_prediction_per_datapoint() {
 
 	// -----------------------
 	
-	lstmModel = await tf.model({inputs: input, outputs: input_lstm0_lstm1_lstm2});
+	lstmModel = await tf.model({inputs: input, outputs: input_lstm0_lstm1_lstm2_dense});
 	console.log('lstmModel: ', lstmModel);
 
 	return lstmModel;
