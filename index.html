@@ -431,12 +431,12 @@ async function modelDefinition_prediction_per_datapoint() {
     
 		kernelInitializer: 'heNormal',
 
-		// batchSize = batch_size gives Input - LSTM:  [129,129]
-		batchSize: batch_size,
-		
 		// inputShape: [timesteps, num_of_features],  // prediction per timestep
 		inputShape: [timesteps, n_a],  // prediction per datapoint
 		
+		batchSize: batch_size,
+
+		// Stateful finds relationships from batch-to-batch for each [timesteps, num_of_features]. stateful=true requires that each layer is initialized.
 		stateful: false,
 		// If stateful=true it gives Error: Input 0 is incompatible with layer lstm_LSTM1: expected shape=168,,1, found shape=32,3,1.
 		activation: 'tanh',
@@ -458,7 +458,14 @@ async function modelDefinition_prediction_per_datapoint() {
 	// -----------------------
   
 	// Dense layer
-	const denseLayer1 = tf.layers.dense({units: num_of_outputs, inputShape: [timesteps, n_a]});
+	const denseLayer1 = tf.layers.dense({
+		units: num_of_outputs,
+		
+		// inputShape: [timesteps, n_a],   // prediction per timestep
+		inputShape: [n_a],   // prediction per datapoint
+		
+		batchInputShape: [batch_size, n_a] // [batch_size, n_a, timesteps=T_x=22]
+	});
 	// const denseLayer1 = tf.layers.dense({units: num_of_outputs});
 
 	// -----------
