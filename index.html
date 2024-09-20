@@ -124,7 +124,7 @@ async function run_per_timestep() {
 	var xs_train_tf = obj.xs_train;
 	var ys_train_tf = obj.ys_train;
 	var xs_test_js = obj.xs_test;
-  var ys_test_js = obj.ys_test;
+	var ys_test_js = obj.ys_test;
   
 	await compile_train_predict_lstm(xs_train_tf, ys_train_tf, xs_test_js, ys_test_js, lstmModel);
 }
@@ -664,20 +664,20 @@ async function compile_train_predict_lstm(xs_train_tf, ys_train_tf, xs_test_js, 
 			});
 	console.log('history: ', history);
 
-  document.getElementById("progress_bar").style.display = "none";
+	document.getElementById("progress_bar").style.display = "none";
 
-  // -----------------------------------------------
-	// Plot accuracy
 	// -----------------------------------------------
-	var accuracy = history.history.acc;
+	// Plot mse
+	// -----------------------------------------------
+	var mse = history.history.mse;
 	var loss = history.history.loss;
-	var epochs_plot = await Array.from({length: accuracy.length}, (val, ind) => { return ind; });
+	var epochs_plot = await Array.from({length: mse.length}, (val, ind) => { return ind; });
 	
 	// https://plotly.com/javascript/line-charts/
-	var title_text = "Model results: loss, accuracy";
+	var title_text = "Model results: loss, mse";
 	var x_text_trace1and2 = "Epochs";
-	var y_text_trace1and2 = "Accuracy or loss";
-	var trace1 = {x: epochs_plot, y: accuracy, mode: 'lines+markers', type: 'line', name: 'Accuracy'};
+	var y_text_trace1and2 = "Mean squared error or loss";
+	var trace1 = {x: epochs_plot, y: mse, mode: 'lines+markers', type: 'line', name: 'MSE'};
 	var trace2 = {x: epochs_plot, y: loss, mode: 'lines+markers', type: 'line', name: 'Loss'};
 	var data = [trace1, trace2];
 	var layout = {grid: {rows: 1, columns: 1, pattern: 'independent'}, title: title_text, xaxis: {title: x_text_trace1and2}, yaxis: {title: y_text_trace1and2}};
