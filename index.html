@@ -429,7 +429,7 @@ async function modelDefinition_prediction_per_datapoint() {
 		units: n_a,
     
 		// receive a prediction per timestep
-		returnSequences: false,
+		returnSequences: true,
 
 		// [returnState: false] means do not return the a and c matricies, so do not learn from the previous timesteps.
     		// [returnState: true] means return the a and c matricies, so learn from the previous timesteps.
