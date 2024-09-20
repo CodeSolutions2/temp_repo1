@@ -492,15 +492,20 @@ async function modelDefinition_prediction_per_datapoint() {
 	// lastdatatpoint_per_Tx is not a tensor 
 	// Argument 'x' passed to 'slice' must be a Tensor or TensorLike, but got 'e'
 	// OR
-	const out = tf.tensor(input_lstm0_lstm1_lstm2_dense_timeDistributed);  // convert layer to tensor
-	const lastdatatpoint_per_Tx = tf.slice(out, [0, -1, 0], [out.shape[0], 1, out.shape[2]]); // slice tensor
-	const denseLayer2 = tf.layers.dense({ units: timesteps }); // convert tensor back to layer
-	const lastdatatpoint_per_Tx_layer = denseLayer2.apply(lastdatatpoint_per_Tx); // convert tensor back to layer
-	console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed - Tx : ", JSON.stringify(lastdatatpoint_per_Tx_layer.shape));
+	// const out = tf.tensor(input_lstm0_lstm1_lstm2_dense_timeDistributed);  // convert layer to tensor
+	// const lastdatatpoint_per_Tx = tf.slice(out, [0, -1, 0], [out.shape[0], 1, out.shape[2]]); // slice tensor
+	// const denseLayer2 = tf.layers.dense({ units: timesteps }); // convert tensor back to layer
+	// const lastdatatpoint_per_Tx_layer = denseLayer2.apply(lastdatatpoint_per_Tx); // convert tensor back to layer
+	//  values passed to tensor(values) must be a number/boolean/string or an array of numbers/booleans/strings, or a TypedArray
+	// OR
+	const reshapeLayer = tf.layers.reshape({targetShape: [batch_size, timesteps]});
+	const input_lstm0_lstm1_lstm2_dense_timeDistributed_Tx = reshapeLayer.apply(input_lstm0_lstm1_lstm2_dense_timeDistributed);
+	
+	console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed - Tx : ", JSON.stringify(input_lstm0_lstm1_lstm2_dense_timeDistributed_Tx.shape));
 
 	// -----------------------
 	
-	lstmModel = await tf.model({inputs: input, outputs: lastdatatpoint_per_Tx_layer});
+	lstmModel = await tf.model({inputs: input, outputs: input_lstm0_lstm1_lstm2_dense_timeDistributed_Tx});
 	console.log('lstmModel: ', lstmModel);
 
 	return lstmModel;
