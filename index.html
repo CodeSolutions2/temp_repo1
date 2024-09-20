@@ -481,21 +481,21 @@ async function modelDefinition_prediction_per_datapoint() {
 
 	// Apply timeDistributed layer to the model
 	const input_lstm0_lstm1_lstm2_dense_timeDistributed = dense_timeDistributed.apply(input_lstm0_lstm1_lstm2);
-	console.log("input_lstm0_lstm1_lstm2_dense_timeDistributed: ", input_lstm0_lstm1_lstm2_dense_timeDistributed.name);
+	console.log("input_lstm0_lstm1_lstm2_dense_timeDistributed name: ", input_lstm0_lstm1_lstm2_dense_timeDistributed.name);
+	console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed : ", JSON.stringify(lastdatatpoint_per_Tx.shape));
+	
 	// -----------
 
 	// Obtain the last datapoint in each batch_size, column (timesteps)
-	const lastdatatpoint_per_Tx = tf.layers.lambda({
-		function: (output) => output.slice([0, -1, 0], [output.shape[0], 1, output.shape[2]])
-	})
+	const lastdatatpoint_per_Tx = tf.slice(input_lstm0_lstm1_lstm2_dense_timeDistributed, [0, -1, 0], [input_lstm0_lstm1_lstm2_dense_timeDistributed.shape[0], 1, input_lstm0_lstm1_lstm2_dense_timeDistributed.shape[2]]);
+	
 
-	const input_lstm0_lstm1_lstm2_dense_timeDistributed_Tx = lastdatatpoint_per_Tx.apply(input_lstm0_lstm1_lstm2_dense_timeDistributed);
 	// const input_lstm0_lstm1_lstm2_dense = denseLayer1.apply(input_lstm0_lstm1_lstm2);
-	console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed - Tx : ", JSON.stringify(input_lstm0_lstm1_lstm2_dense_timeDistributed_Tx.shape));
+	console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed - Tx : ", JSON.stringify(lastdatatpoint_per_Tx.shape));
 
 	// -----------------------
 	
-	lstmModel = await tf.model({inputs: input, outputs: input_lstm0_lstm1_lstm2_dense_timeDistributed_Tx});
+	lstmModel = await tf.model({inputs: input, outputs: lastdatatpoint_per_Tx});
 	console.log('lstmModel: ', lstmModel);
 
 	return lstmModel;
