@@ -312,7 +312,7 @@ async function modelDefinition_prediction_per_datapoint() {
 
 	// -----------------------
   
-	var n_a = 2*timesteps;  // timesteps;
+	var n_a = 1; // 2*timesteps;  // timesteps;
 	var num_of_outputs = timesteps; // a value from 1 to timesteps, or the number of data points to predict into the future
 
 	// -----------------------
@@ -691,7 +691,7 @@ async function compile_train_predict_lstm(xs_train_tf, ys_train_tf, xs_test_js, 
 	// xs_train_tf [ 18, 11, 1 ]
 
 	
-	const history = await lstmModel.fit(tf.squeeze(xs_train_tf), ys_train_tf, { 
+	const history = await lstmModel.fit(xs_train_tf, ys_train_tf, { 
 				batchSize: batch_size, 
 				epochs: epochs, 
 				callbacks: { onEpochEnd: async (epoch, logs) => { 
