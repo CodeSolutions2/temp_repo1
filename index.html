@@ -420,7 +420,7 @@ async function modelDefinition_prediction_per_datapoint() {
 	const lstm2 = tf.layers.lstm({
 		// cells: cells,
 		recurrentActivation: 'hardSigmoid',
-		units: timesteps,
+		units: n_a,
     
 		// receive a prediction per timestep
 		returnSequences: false,
@@ -645,8 +645,8 @@ async function compile_train_predict_lstm(xs_train_tf, ys_train_tf, xs_test_js, 
 	
 	await lstmModel.compile({optimizer: tf.train.adam(), loss: tf.losses.meanSquaredError, metrics: ['mse'],});
 
-	const epochs = 400;
-  
+	epochs = document.getElementById('epochs').value;
+	
 	const history = await lstmModel.fit(xs_train_tf, ys_train_tf, { 
 				batchSize: batch_size, 
 				epochs: epochs, 
