@@ -315,22 +315,27 @@ async function modelDefinition_prediction_per_datapoint() {
 	var n_a = 2*timesteps;  // timesteps;
 	var num_of_outputs = timesteps; // a value from 1 to timesteps, or the number of data points to predict into the future
 
-  // -----------------------
-
+	// -----------------------
+	
+	// Input layer
+	
 	// Please provide either a `shape` or `batchShape` argument to Input, but not both.
 	// const input = tf.input({shape: [timesteps, num_of_features]});
 	// OR
 	// If an RNN is stateful, it needs to know its batch size. Specify the batch size of your input tensors:
 	// - If using a Sequential model, specify the batch size by passing a `batchInputShape` option to your first layer.
 	// - If using the functional API, specify the batch size by passing a `batchShape` option to your Input layer.
-	// -----------------------
-	
-	// Input layer
-	const input = tf.input({batchShape: [batch_size, timesteps, num_of_features]});
+	// OR
+	// const input = tf.input({batchShape: [batch_size, timesteps, num_of_features]});
+	// OR
+	const input = tf.inputLayer({
+		inputShape: [timesteps, num_of_features],
+		batchSize: batch_size
+	});
   
 	console.log("Input: ", JSON.stringify(input.shape));
-	// Input: [batch_size=19, 11=timesteps, 1=num_of_features]
-	// Input:  [19,11,1]
+	// Input: [batch_size=18, 11=timesteps, 1=num_of_features]
+	// Input:  [18,11,1]
 
 	// -----------------------
 
@@ -347,11 +352,11 @@ async function modelDefinition_prediction_per_datapoint() {
     
 		kernelInitializer: 'heNormal',
 
-		// batchSize = batch_size gives Input - LSTM:  [129,129]
 		batchSize: batch_size,
 		inputShape: [timesteps, num_of_features],
+		
 		stateful: false,
-		// If stateful=true it gives Error: Input 0 is incompatible with layer lstm_LSTM1: expected shape=168,,1, found shape=32,3,1.
+		
 		activation: 'tanh',
 		trainable: true,
 		dropout: 0.2
@@ -383,15 +388,14 @@ async function modelDefinition_prediction_per_datapoint() {
 		returnState: false,
     
 		kernelInitializer: 'heNormal',
-
-		// batchSize = batch_size gives Input - LSTM:  [129,129]
+		
 		batchSize: batch_size,
 		
 		// inputShape: [timesteps, num_of_features],  // prediction per timestep
 		inputShape: [timesteps, n_a],  // prediction per datapoint
 		
 		stateful: false,
-		// If stateful=true it gives Error: Input 0 is incompatible with layer lstm_LSTM1: expected shape=168,,1, found shape=32,3,1.
+		
 		activation: 'tanh',
 		trainable: true,
 		dropout: 0.2
@@ -425,7 +429,7 @@ async function modelDefinition_prediction_per_datapoint() {
 		returnSequences: false,
 
 		// [returnState: false] means do not return the a and c matricies, so do not learn from the previous timesteps.
-    // [returnState: true] means return the a and c matricies, so learn from the previous timesteps.
+    		// [returnState: true] means return the a and c matricies, so learn from the previous timesteps.
 		returnState: false,
     
 		kernelInitializer: 'heNormal',
@@ -437,7 +441,7 @@ async function modelDefinition_prediction_per_datapoint() {
 
 		// Stateful finds relationships from batch-to-batch for each [timesteps, num_of_features]. stateful=true requires that each layer is initialized.
 		stateful: false,
-		// If stateful=true it gives Error: Input 0 is incompatible with layer lstm_LSTM1: expected shape=168,,1, found shape=32,3,1.
+		
 		activation: 'tanh',
 		trainable: true,
 		dropout: 0.2
@@ -448,7 +452,7 @@ async function modelDefinition_prediction_per_datapoint() {
 	console.log("input_lstm0_lstm1_lstm2: ", input_lstm0_lstm1_lstm2.name);
 	
 	console.log("Input - LSTM0 - LSTM1 - LSTM2: ", JSON.stringify(input_lstm0_lstm1_lstm2.shape)); 
-	// Input - LSTM: [m=batch_size=129, n_y=units=num_of_lstm_outpus=1] 
+	// Input - LSTM: [m=batch_size=18, n_y=units=num_of_lstm_outpus=1] 
 	
 	// This size is the shape of y_total_forward_pass per timestep
 
@@ -471,8 +475,8 @@ async function modelDefinition_prediction_per_datapoint() {
 	
 	const input_lstm0_lstm1_lstm2_dense = denseLayer1.apply(input_lstm0_lstm1_lstm2);
 	console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense: ", JSON.stringify(input_lstm0_lstm1_lstm2_dense.shape));
-	// Input - LSTM - Dense:  [19=batch_size, timesteps=11, num_of_outputs=11]
-	// Input - LSTM - Dense:  [19,11,11]
+	// Input - LSTM - Dense:  [18=batch_size, timesteps=11, num_of_outputs=11]
+	// Input - LSTM - Dense:  [18,11,11]
 
 	// -----------------------
 	
@@ -682,10 +686,10 @@ async function compile_train_predict_lstm(xs_train_tf, ys_train_tf, xs_test_js, 
 	var data = [trace1, trace2];
 	var layout = {grid: {rows: 1, columns: 1, pattern: 'independent'}, title: title_text, xaxis: {title: x_text_trace1and2}, yaxis: {title: y_text_trace1and2}};
 	Plotly.newPlot('data_display', data, layout);
-
-
-  for (var i=0; i<xs_test_js.length; i++) {
-
+	
+	
+	for (var i=0; i<xs_test_js.length; i++) {
+		
 		console.log('---------------------TEST MODEL: ', i, ' ---------------------: ');
 		
 		// ------------------------
@@ -701,30 +705,26 @@ async function compile_train_predict_lstm(xs_train_tf, ys_train_tf, xs_test_js, 
 		
 		// ------------------------
 	
-  	// Evaluation of prediction with respect to the model
-  	var result = lstmModel.predict( tf.tensor(xs_test_js_batch) );
-  	// console.log('result : ', result);
+		// Evaluation of prediction with respect to the model
+		var result = lstmModel.predict( tf.tensor(xs_test_js_batch) );
+		// console.log('result : ', result);
   
-  	// ------------------------
+		// ------------------------
   
-  	// Obtain prediction output from model
-  	// const model_predictions = await result.data();
-  	// console.log('model_predictions : ', model_predictions);
-  	// OR
-  	var model_predictions = result.dataSync()[0];  
-  	console.log('model_predictions : ', model_predictions);
+		// Obtain prediction output from model
+		// const model_predictions = await result.data();
+		// console.log('model_predictions : ', model_predictions);
+		// OR
+		var model_predictions = result.dataSync()[0];  
+		console.log('model_predictions : ', model_predictions);
   
-  	// ------------------------
+		// ------------------------
 
-    // Correct response
-    if (i < xs_test_js.length-1) {
-      console.log("ys_test_js: ", ys_test_js.at(i));
-    } else {
-    	// Print the [first datapoint of] 24 hour predictions from the site
-    	var site_predictions = predicted_24hour_temperature_data.at(0);
-    	console.log("ys_test_js=site_predictions: ", site_predictions);
-    }
-  }
+		// Correct response
+		console.log("ys_test_js: ", ys_test_js.at(i));
+
+	  	// ------------------------
+	}
 }
 
 	
