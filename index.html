@@ -104,14 +104,14 @@ async function run_per_datapoint() {
 	var obj = await create_xs_ys_predict_1_datapoint();
 	// obj = {xs_train: xs_train_tf, ys_train: ys_train_tf, xs_test: xs_test_3d_jsArr, ys_test: ys_test_1d_jsArr};
 	
-	// lstmModel = await modelDefinition_prediction_per_datapoint();
+	lstmModel = await modelDefinition_prediction_per_datapoint();
 
-	// var xs_train_tf = obj.xs_train;
-	// var ys_train_tf = obj.ys_train;
-	// var xs_test_js = obj.xs_test;
-	// var ys_test_js = obj.ys_test;
+	var xs_train_tf = obj.xs_train;
+	var ys_train_tf = obj.ys_train;
+	var xs_test_js = obj.xs_test;
+	var ys_test_js = obj.ys_test;
   
-	// await compile_train_predict_lstm(xs_train_tf, ys_train_tf, xs_test_js, ys_test_js, lstmModel);
+	await compile_train_predict_lstm(xs_train_tf, ys_train_tf, xs_test_js, ys_test_js, lstmModel);
 }
 
 async function run_per_timestep() {
