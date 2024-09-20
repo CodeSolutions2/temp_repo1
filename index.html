@@ -328,7 +328,7 @@ async function modelDefinition_prediction_per_datapoint() {
 	// OR
 	// const input = tf.input({batchShape: [batch_size, timesteps, num_of_features]});
 	// OR
-	const input = tf.inputLayer({
+	const input = tf.layers.inputLayer({
 		inputShape: [timesteps, num_of_features],
 		batchSize: batch_size
 	});
