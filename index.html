@@ -190,12 +190,13 @@ async function create_xs_ys_predict_1_datapoint() {
 			// Separate train and test data
 			if (num_of_desired_predictions > batch_size-batch_size_test) {
 				// Test data set
+				console.log('batch_size-batch_size_test: ', batch_size-batch_size_test);
 				x_temp_test.push(temp_datappoints_arr.slice(st, stop-1));
 				y_temp_test.push(temp_datappoints_arr.slice(stop-1));
 			} else {
 				// Train data set
-				x_temp.push(temp_datappoints_arr.slice(st, stop-1)); // from [0-24th] value
-				y_temp.push(temp_datappoints_arr.at(stop-1));  // returns the 25th value
+				x_temp.push(temp_datappoints_arr.slice(st, stop-1)); // from [0-(timesteps-2)th] value
+				y_temp.push(temp_datappoints_arr.at(stop-1));  // returns the (timesteps-1)th value
 				
 				if (num_of_desired_predictions == 0) {
 					console.log("x_temp: ", x_temp);
