@@ -501,7 +501,7 @@ async function modelDefinition_prediction_per_datapoint() {
 	// OR
 	// const reshapeLayer = tf.layers.reshape({targetShape: [batch_size, timesteps]});
 	// const input_lstm0_lstm1_lstm2_dense_timeDistributed_Tx = reshapeLayer.apply(input_lstm0_lstm1_lstm2_dense_timeDistributed);
-	// Total size of new array must be unchanged.
+	// Total size of new array must be unchanged. So if I start with a 3d shape, I have to end with a 3d shape.
 	// OR
 	const flattenLayer = tf.layers.flatten({
 		inputShape: [timesteps, 1],
@@ -687,8 +687,11 @@ async function compile_train_predict_lstm(xs_train_tf, ys_train_tf, xs_test_js, 
 	epochs = document.getElementById('epochs').value;
 
 	console.log('here1');
+
+	// xs_train_tf [ 18, 11, 1 ]
+
 	
-	const history = await lstmModel.fit(xs_train_tf, ys_train_tf, { 
+	const history = await lstmModel.fit(tf.squeeze(xs_train_tf), ys_train_tf, { 
 				batchSize: batch_size, 
 				epochs: epochs, 
 				callbacks: { onEpochEnd: async (epoch, logs) => { 
