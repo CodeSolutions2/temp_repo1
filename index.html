@@ -394,8 +394,8 @@ async function modelDefinition_prediction_per_datapoint() {
 		
 		batchSize: batch_size,
 		
-		// inputShape: [timesteps, num_of_features],  // prediction per timestep
-		inputShape: [timesteps, n_a],  // prediction per datapoint
+		inputShape: [timesteps, num_of_features],  // prediction per timestep
+		// inputShape: [timesteps, n_a],  // prediction per datapoint
 		
 		stateful: false,
 		
