@@ -326,14 +326,15 @@ async function modelDefinition_prediction_per_datapoint() {
 	// - If using a Sequential model, specify the batch size by passing a `batchInputShape` option to your first layer.
 	// - If using the functional API, specify the batch size by passing a `batchShape` option to your Input layer.
 	// OR
-	// const input = tf.input({batchShape: [batch_size, timesteps, num_of_features]});
+	const input = tf.input({batchShape: [batch_size, timesteps, num_of_features]});
 	// OR
-	const model_input = tf.input({shape: [timesteps, num_of_features]});
-	const inputLayer = tf.layers.inputLayer({
-		inputShape: [timesteps, num_of_features],
-		batchSize: batch_size
-	});
-	const input = inputLayer.apply(model_input);
+	// const model_input = tf.input({shape: [timesteps, num_of_features]});
+	// const inputLayer = tf.layers.inputLayer({
+	// 	inputShape: [timesteps, num_of_features],
+	// 	batchSize: batch_size
+	// });
+	// const input = inputLayer.apply(model_input);
+	// Cannot pass any input to an InputLayer's apply() method. InputLayer name: input2
 	
 	console.log("Input: ", JSON.stringify(input.shape));
 	// Input: [batch_size=18, 11=timesteps, 1=num_of_features]
