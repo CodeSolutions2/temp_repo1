@@ -149,7 +149,7 @@ async function create_xs_ys_predict_1_datapoint() {
 	// Calculate [batch_size, timestep, num_of_features] to separate X and Y
 	// var timesteps = 6;  // will need to put in timesteps=5 into the model, since we use the 6th one to assign to Y
 	// OR
-	timesteps = 12; // Try a longer window such that the LSTM has more past data to train on, for a more accurate result
+	timesteps = 19; // Try a longer window such that the LSTM has more past data to train on, for a more accurate result
 	console.log('timesteps: ', timesteps);
 	
 	num_of_features = xs_2d_arr.length;  // num_of_features_OR_colnum
@@ -312,7 +312,7 @@ async function modelDefinition_prediction_per_datapoint() {
 
 	// -----------------------
   
-	var n_a = 1; // 2*timesteps;  // timesteps;
+	var n_a = timesteps; // 2*timesteps;  // timesteps;
 	var num_of_outputs = timesteps; // a value from 1 to timesteps, or the number of data points to predict into the future
 
 	// -----------------------
