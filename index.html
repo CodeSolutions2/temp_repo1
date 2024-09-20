@@ -465,7 +465,7 @@ async function modelDefinition_prediction_per_datapoint() {
   
 	// Dense layer
 	const denseLayer1 = tf.layers.dense({
-		units: 1,
+		units: 0,
 		inputShape: [timesteps, n_a],   // prediction per timestep
 		// inputShape: [n_a],   // prediction per datapoint
 		// batchInputShape: [batch_size, n_a] // [batch_size, n_a, timesteps=T_x=22]
@@ -484,7 +484,8 @@ async function modelDefinition_prediction_per_datapoint() {
 	console.log("input_lstm0_lstm1_lstm2_dense_timeDistributed name: ", input_lstm0_lstm1_lstm2_dense_timeDistributed.name);
 	console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed : ", JSON.stringify(input_lstm0_lstm1_lstm2_dense_timeDistributed.shape));
 
-	// Removes n_a : Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed :  [18,11,1]
+	// Removes n_a  (how does it reduce n_a to 1? does it take the last point): 
+	// Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed :  [18,11,1]
 	// -----------
 
 	// Obtain the last datapoint in each batch_size, column (timesteps)
@@ -500,6 +501,7 @@ async function modelDefinition_prediction_per_datapoint() {
 	// OR
 	const reshapeLayer = tf.layers.reshape({targetShape: [batch_size, timesteps]});
 	const input_lstm0_lstm1_lstm2_dense_timeDistributed_Tx = reshapeLayer.apply(input_lstm0_lstm1_lstm2_dense_timeDistributed);
+	// Total size of new array must be unchanged.
 	
 	console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense - timeDistributed - Tx : ", JSON.stringify(input_lstm0_lstm1_lstm2_dense_timeDistributed_Tx.shape));
 
