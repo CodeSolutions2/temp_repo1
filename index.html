@@ -22,7 +22,6 @@
 
 <br><br>
  
-<button id="run_per_datapoint" onclick="run_per_datapoint()">run_per_datapoint</button>
 <button id="run_per_timestep" onclick="run_per_timestep()">run_per_timestep</button>
 
 <br><br>
@@ -99,20 +98,6 @@ var lstmModel = [];
 var epochs = 500;
 
 
-async function run_per_datapoint() {
-
-var obj = await create_xs_ys_predict_1_datapoint();
-// obj = {xs_train: xs_train_tf, ys_train: ys_train_tf, xs_test: xs_test_3d_jsArr, ys_test: ys_test_1d_jsArr};
-
-lstmModel = await modelDefinition_prediction_per_datapoint();
-
-var xs_train_tf = obj.xs_train;
-var ys_train_tf = obj.ys_train;
-var xs_test_js = obj.xs_test;
-var ys_test_js = obj.ys_test;
- 
-await compile_train_predict_lstm(xs_train_tf, ys_train_tf, xs_test_js, ys_test_js, lstmModel);
-}
 
 async function run_per_timestep() {
 
@@ -304,155 +289,6 @@ return {xs_train: xs_train_tf, ys_train: ys_train_tf, xs_test: xs_test_3d_jsArr,
 
 
 
-// -----------------------------------------------
-// [1] model outline: case 0 - predictions for all the data points in the timestep per batch (most basic model)
-// returnSequences: true
-// -----------------------------------------------
-async function modelDefinition_prediction_per_datapoint() {
-
-// -----------------------
- 
-var n_a = 2*timesteps;  // timesteps;
-var num_of_outputs = 1; // a value from 1 to timesteps, or the number of data points to predict into the future
-
-  // -----------------------
- 
-// Input layer
-const input = tf.input({batchShape: [batch_size, timesteps, num_of_features]});
-console.log("input: ", input.name);
-
-console.log("Input: ", JSON.stringify(input.shape));
-// [129=batch_size, 1=timesteps, 1=num_of_features]
-
-// -----------------------
-
-// LSTM layer 0
-const lstm0 = tf.layers.lstm({
-recurrentActivation: 'hardSigmoid',
-units: n_a,
-   
-// receive a prediction per datapoint
-returnSequences: true,
-
-// do not return the a and c matricies
-returnState: false,
-kernelInitializer: 'heNormal',
-
-// batchSize = batch_size gives Input - LSTM:  [129,129]
-batchSize: batch_size,
-inputShape: [timesteps, num_of_features],
-stateful: false,
-// If stateful=true it gives Error: Input 0 is incompatible with layer lstm_LSTM1: expected shape=168,,1, found shape=32,3,1.
-activation: 'tanh',
-trainable: true,
-dropout: 0.2
-});
-
-// Apply lstm layer to the model
-const input_lstm0 = lstm0.apply(input);
-console.log("input_lstm0: ", input_lstm0.name);
-
-console.log("Input - LSTM0: ", JSON.stringify(input_lstm0.shape));
-// Input - LSTM0: [m=batch_size=129, n_y=units=num_of_lstm_outpus=1]
-
-// This size is the shape of y_total_forward_pass per timestep
-
-// y_hat<t>_(n_y, batch_size)
-
-// -----------------------
-
-// LSTM layer 1
-const lstm1 = tf.layers.lstm({
-recurrentActivation: 'hardSigmoid',
-units: n_a,
-   
-// receive a prediction per timestep
-returnSequences: true,
-
-// do not return the a and c matricies
-returnState: false,
-kernelInitializer: 'heNormal',
-
-// batchSize = batch_size gives Input - LSTM:  [129,129]
-batchSize: batch_size,
-inputShape: [timesteps, num_of_features],
-stateful: false,
-// If stateful=true it gives Error: Input 0 is incompatible with layer lstm_LSTM1: expected shape=168,,1, found shape=32,3,1.
-activation: 'tanh',
-trainable: true,
-dropout: 0.2
-});
-
-// Apply lstm layer to the model
-const input_lstm0_lstm1 = lstm1.apply(input_lstm0);
-console.log("input_lstm0_lstm1: ", input_lstm0_lstm1.name);
-
-console.log("Input - LSTM0 - LSTM1: ", JSON.stringify(input_lstm0_lstm1.shape));
-// Input - LSTM: [m=batch_size=129, n_y=units=num_of_lstm_outpus=1]
-
-// This size is the shape of y_total_forward_pass per timestep
-
-// y_hat<t>_(n_y, batch_size)
-
-// -----------------------
-
-// LSTM layer 2
-const lstm2 = tf.layers.lstm({
-recurrentActivation: 'hardSigmoid',
-units: n_a,
-   
-// receive a prediction per timestep
-returnSequences: true,
-
-// do not return the a and c matricies
-returnState: false,
-kernelInitializer: 'heNormal',
-
-// batchSize = batch_size gives Input - LSTM:  [129,129]
-batchSize: batch_size,
-inputShape: [timesteps, num_of_features],
-stateful: false,
-// If stateful=true it gives Error: Input 0 is incompatible with layer lstm_LSTM1: expected shape=168,,1, found shape=32,3,1.
-activation: 'tanh',
-trainable: true,
-dropout: 0.2
-});
-
-// Apply lstm layer to the model
-const input_lstm0_lstm1_lstm2 = lstm2.apply(input_lstm0_lstm1);
-console.log("input_lstm0_lstm1_lstm2: ", input_lstm0_lstm1_lstm2.name);
-
-console.log("Input - LSTM0 - LSTM1 - LSTM2: ", JSON.stringify(input_lstm0_lstm1_lstm2.shape));
-// Input - LSTM: [m=batch_size=129, n_y=units=num_of_lstm_outpus=1]
-
-// This size is the shape of y_total_forward_pass per timestep
-
-// y_hat<t>_(n_y, batch_size)
-
-// -----------------------
-
-// Dense layer
-// const denseLayer1 = tf.layers.dense({units: num_of_outputs, inputShape: [timesteps, num_of_features]});
-const denseLayer1 = tf.layers.dense({units: 2});
-
-// -----------
-
-const input_lstm0_lstm1_lstm2_dense = denseLayer1.apply(input_lstm0_lstm1_lstm2);
-console.log("Input - LSTM0 - LSTM1 - LSTM2 - Dense: ", JSON.stringify(input_lstm0_lstm1_lstm2_dense.shape));
-// [null, num_of_outputs=1] OR [batch_size=19, num_of_outputs=1]
-
-
-const flattenLayer = tf.layers.flatten();
-const input_lstm0_lstm1_lstm2_dense_timeDistributed_Tx = flattenLayer.apply(input_lstm0_lstm1_lstm2_dense);
-// -----------------------
-
-lstmModel = await tf.model({inputs: input, outputs: input_lstm0_lstm1_lstm2_dense_timeDistributed_Tx});
-console.log('lstmModel: ', lstmModel);
-
-return lstmModel;
-}
-
-
 
 
 // -----------------------------------------------
@@ -485,7 +321,7 @@ units: n_a,
 returnSequences: true,
 
 // do not return the a and c matricies
-returnState: false,
+returnState: true,
 kernelInitializer: 'heNormal',
 
 // batchSize = batch_size gives Input - LSTM:  [129,129]
@@ -520,7 +356,7 @@ units: n_a,
 returnSequences: true,
 
 // do not return the a and c matricies
-returnState: false,
+returnState: true,
 kernelInitializer: 'heNormal',
 
 // batchSize = batch_size gives Input - LSTM:  [129,129]
