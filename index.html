@@ -130,7 +130,7 @@ async function translate_text() {
 
 	// -------------------------------------
 
-	const method = "GET";
+	const method = "POST";
 	
 	var data = {
 		"contents": ["text"],
@@ -144,18 +144,10 @@ async function translate_text() {
 	headers_additional["Content-Type"] = "application/json";
 	headers_additional.Authorization = 'Bearer ' + API_KEY;
   
-	var file_array = await call_fetch_methods(url, method, data, headers_additional)
-		.then(async function(xmlDocument) {
-			// console.log('xmlDocument: ', xmlDocument);
-			let file_array = [];
-			for (var i=0; i<xmlDocument.items.length; i++) {
-				file_array.push(xmlDocument.items[i].name);
-			}
-			return file_array;
-		})
+	var response = await call_fetch_methods(url, method, data, headers_additional)
 		.catch(error => console.error(error));
 
-	console.log('file_array: ', file_array);
+	console.log('response: ', response);
 
 	// -------------------------------------
   
