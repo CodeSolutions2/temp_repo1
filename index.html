@@ -240,7 +240,7 @@ async function run_fetch_method(url, method, data, fetch_method, headers_additio
 			async: true,
 			crossDomain: true,
 			beforeSend: function(xhr) {xhr.withCredentials = true;},
-			// headers: new Headers(headers),
+			headers: new Headers(headers),
 			success: function(response) { console.log('Success'); },
 			error: function(xhr, status, error) { console.log('Error:', error); }
 		};
