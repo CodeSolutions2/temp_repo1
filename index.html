@@ -527,7 +527,7 @@ async function convert_text_to_base64str(text_str) {
 	console.log('uint8Array_nonfixedLength_way0:', uint8Array_nonfixedLength_way0);
 
 	// Convert TypedArray to normalArray
-	const normalArray = await Array.from(uint8Array_nonfixedLength_way0.data);
+	const normalArray = await Array.from(uint8Array_nonfixedLength_way0);
 	console.log('normalArray: ', normalArray);
 	
 	// Convert [normalArray of bytes] to text_characters
