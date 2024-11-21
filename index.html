@@ -193,10 +193,6 @@ async function translate_text() {
 	// -------------------------------------
 }
 
-
-// -----------------------------------------------
-
-	
 // -----------------------------------------------
 
 async function list_bigquery_datasets_per_project_id() {
@@ -232,7 +228,68 @@ async function list_bigquery_datasets_per_project_id() {
 
 // -----------------------------------------------
 
+async function list_bigquery_tables_per_dataset_project_id() {
+
+
+	// List bigquery tables within a dataset within a PROJECT_ID.
 	
+	const PROJECT_ID = document.getElementById("PROJECT_ID").value;
+	const DATASET_ID = document.getElementById("DATASET_ID").value;
+	const API_KEY = document.getElementById("API_KEY").value;
+
+	// -------------------------------------
+	
+	var url = `https://bigquery.googleapis.com/bigquery/v2/projects/${PROJECT_ID}/datasets/${DATASET_ID}/tables?key=${API_KEY}`
+
+	// -------------------------------------
+  
+	const method = "GET";
+	var data = {};
+	var headers_additional = {};
+  
+	var xmlDocument = await call_fetch_methods(url, method, data, headers_additional)
+	console.log('xmlDocument: ', xmlDocument);
+	
+	// var file_array = [];
+	// for (var i=0; i<xmlDocument.items.length; i++) {
+	// 	file_array.push(xmlDocument.items[i].name);
+	// }
+	// console.log('file_array: ', file_array);
+	
+	// -------------------------------------
+	
+}
+
+// -----------------------------------------------
+	
+async function add_data_to_a_bigquery_table() {
+	
+	const PROJECT_ID = document.getElementById("PROJECT_ID").value;
+	const DATASET_ID = document.getElementById("DATASET_ID").value;
+	const API_KEY = document.getElementById("API_KEY").value;
+
+	// -------------------------------------
+	
+	var url = `https://bigquery.googleapis.com/bigquery/v2/projects/${PROJECT_ID}/datasets/${DATASET_ID}/tables?key=${API_KEY}`
+
+	// -------------------------------------
+  
+	const method = "POST";
+	var data = {};
+	var headers_additional = {};
+  
+	var xmlDocument = await call_fetch_methods(url, method, data, headers_additional)
+	console.log('xmlDocument: ', xmlDocument);
+	
+	// var file_array = [];
+	// for (var i=0; i<xmlDocument.items.length; i++) {
+	// 	file_array.push(xmlDocument.items[i].name);
+	// }
+	// console.log('file_array: ', file_array);
+	
+	// -------------------------------------
+	
+}
 
 // -----------------------------------------------
 
@@ -471,19 +528,19 @@ async function convert_text_to_base64str(text_str) {
 
 	// Convert TypedArray to normalArray
 	const normalArray = await Array.from(uint8Array_nonfixedLength_way0.data);
-	// console.log('normalArray: ', normalArray);
+	console.log('normalArray: ', normalArray);
 	
 	// Convert [normalArray of bytes] to text_characters
-	var ASCII_stringArray = normalArray.map((val) => { return String.fromCharCode(val); });
-	// console.log('ASCII_stringArray: ', ASCII_stringArray);
+	var ASCII_stringArray = await normalArray.map((val) => { return String.fromCharCode(val); });
+	console.log('ASCII_stringArray: ', ASCII_stringArray);
 	
 	// Join all the ASCII characters to form a string
-	var ASCII_str = ASCII_stringArray.join('');
-	// console.log("ASCII_str: ", ASCII_str);
+	var ASCII_str = await ASCII_stringArray.join('');
+	console.log("ASCII_str: ", ASCII_str);
 	
 	// Transform ASCII string into a base64 string
-	var base64_string = btoa(ASCII_str);
-	// console.log("base64_string: ", base64_string);
+	var base64_string = await btoa(ASCII_str);
+	console.log("base64_string: ", base64_string);
 
 	// -----------------------------
 
