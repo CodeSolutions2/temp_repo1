@@ -7,16 +7,25 @@
 <input id="PROJECT_ID" type="text" value="" placeholder="PROJECT_ID" rows="10" cols="100" style="display:block; text-align: left; width: 300px;">
 <input id="BUCKET_NAME" type="text" value="" placeholder="BUCKET_NAME" rows="10" cols="100" style="display:block; text-align: left; width: 300px;">
 
-
+<!-- ----------------------------------------------- -->
+	
 <button id="List_buckets" onclick="List_buckets()">List_buckets</button>
 <button id="List_objects_in_a_bucket" onclick="List_objects_in_a_bucket()">List_objects_in_a_bucket</button>
 <button id="send_a_file_to_a_Bucket" onclick="send_a_file_to_a_Bucket()">send_a_file_to_a_Bucket</button>
+	
 <button id="translate_text" onclick="translate_text()">translate_text</button>
+	
+<button id="list_bigquery_datasets_per_project_id" onclick="list_bigquery_datasets_per_project_id()">list_bigquery_datasets_per_project_id</button>
 <!-- <button id="add_data_to_a_bigquery_table" onclick="add_data_to_a_bigquery_table()">add_data_to_a_bigquery_table</button> -->
+	
+<button id="using_language_googleapis_REST_API" onclick="using_language_googleapis_REST_API()">using_language_googleapis_REST_API</button>
 
+<!-- ----------------------------------------------- -->
+	
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-  
+<!-- ----------------------------------------------- -->
+	
 <script>
 
 // -----------------------------------------------
@@ -190,7 +199,87 @@ async function translate_text() {
 	
 // -----------------------------------------------
 
+async function list_bigquery_datasets_per_project_id() {
 
+	// List bigquery datasets within a PROJECT_ID.
+	
+	const PROJECT_ID = document.getElementById("PROJECT_ID").value;
+
+	const API_KEY = document.getElementById("API_KEY").value;
+
+	// -------------------------------------
+	
+	var url = `https://bigquery.googleapis.com/bigquery/v2/projects/${PROJECT_ID}/datasets?key=${API_KEY}`
+
+	// -------------------------------------
+  
+	const method = "GET";
+	var data = {};
+	var headers_additional = {};
+  
+	var xmlDocument = await call_fetch_methods(url, method, data, headers_additional)
+	console.log('xmlDocument: ', xmlDocument);
+	
+	// var file_array = [];
+	// for (var i=0; i<xmlDocument.items.length; i++) {
+	// 	file_array.push(xmlDocument.items[i].name);
+	// }
+	// console.log('file_array: ', file_array);
+	
+	// -------------------------------------
+	
+}
+
+// -----------------------------------------------
+
+	
+
+// -----------------------------------------------
+
+async function using_language_googleapis_REST_API() {
+
+	const PROJECT_ID = document.getElementById("PROJECT_ID").value;
+	
+	const API_KEY = document.getElementById("API_KEY").value;
+
+	// -------------------------------------
+
+	// Maybe it is needed to list both [public and private] buckets
+	var url = `https://language.googleapis.com/v1/documents:analyzeEntities?key=${API_KEY}`
+
+	// https://language.googleapis.com/v1/documents:analyzeSentiment?key=${API_KEY}
+	// https://language.googleapis.com/v1/documents:analyzeEntitySentiment?key=${API_KEY}
+	// https://language.googleapis.com/v1/documents:analyzeSyntax?key=${API_KEY}
+	
+	// -------------------------------------
+
+	const method = "POST";
+	
+	var file_json = {
+	  "document":{
+	    "type":"PLAIN_TEXT",
+	    "content":"textXXX"
+	  },
+	  "encodingType":"UTF8"
+	};
+
+	// Convert to ASCII_binary
+	[ASCII_str, base64_string] = await convert_text_to_base64str(JSON.stringify(file_json));
+	console.log('ASCII_str: ', ASCII_str);
+
+	var data = {};
+	data["data-binary"] = ASCII_str;
+
+	var headers_additional = {};
+	headers_additional["Content-Type"] = "application/json";
+	headers_additional.Authorization = 'Bearer ' + API_KEY;
+  
+	var response = await call_fetch_methods(url, method, data, headers_additional)
+		.catch(error => console.error(error));
+	console.log('response: ', response);
+
+	// -------------------------------------
+}
 	
 // -----------------------------------------------
 
@@ -351,6 +440,37 @@ async function convert_canvas_to_base64str(ctx, canvasElement) {
 
 	// Convert TypedArray to normalArray
 	const normalArray = await Array.from(uint8ClampedArray.data);
+	// console.log('normalArray: ', normalArray);
+	
+	// Convert [normalArray of bytes] to text_characters
+	var ASCII_stringArray = normalArray.map((val) => { return String.fromCharCode(val); });
+	// console.log('ASCII_stringArray: ', ASCII_stringArray);
+	
+	// Join all the ASCII characters to form a string
+	var ASCII_str = ASCII_stringArray.join('');
+	// console.log("ASCII_str: ", ASCII_str);
+	
+	// Transform ASCII string into a base64 string
+	var base64_string = btoa(ASCII_str);
+	// console.log("base64_string: ", base64_string);
+
+	// -----------------------------
+
+	return [ASCII_str, base64_string];
+}
+
+// -----------------------------------------------
+	
+async function convert_text_to_base64str(text_str) {
+	
+	// -----------------------------
+	
+	// Encode the text string into a TypedArray of [non-fixed length].
+	const uint8Array_nonfixedLength_way0 = new TextEncoder().encode(text_str);
+	console.log('uint8Array_nonfixedLength_way0:', uint8Array_nonfixedLength_way0);
+
+	// Convert TypedArray to normalArray
+	const normalArray = await Array.from(uint8Array_nonfixedLength_way0.data);
 	// console.log('normalArray: ', normalArray);
 	
 	// Convert [normalArray of bytes] to text_characters
