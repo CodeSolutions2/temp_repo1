@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+
+<input id="API_KEY" type="text" value="" placeholder="API_KEY" rows="10" cols="100" style="display:block; text-align: left; width: 600px;">
+  
+<input id="PROJECT_ID" type="text" value="" placeholder="PROJECT_ID" rows="10" cols="100" style="display:block; text-align: left; width: 600px;">
+
+<input id="BUCKET_NAME" type="text" value="" placeholder="BUCKET_NAME" rows="10" cols="100" style="display:block; text-align: left; width: 600px;">
+
+<button id="List_buckets" onclick="List_buckets()">List_buckets</button>
+
+<button id="List_objects_in_a_bucket" onclick="List_objects_in_a_bucket()">List_objects_in_a_bucket</button>
+  
+<button id="send_a_file_to_a_Bucket" onclick="send_a_file_to_a_Bucket()">send_a_file_to_a_Bucket</button>
+
+
+  
+<script>
+
+// -----------------------------------------------
+
+async function List_buckets() {
+
+	// Retrieves a list of buckets for a given project, ordered in the list lexicographically by name.
+	
+	// https://cloud.google.com/storage/docs/json_api/v1/buckets/list
+	
+	const PROJECT_ID = document.getElementById("PROJECT_ID").value;
+
+  // -------------------------------------
+
+  // It lists [public] buckets
+  var url = `https://storage.googleapis.com/storage/v1/b?project=${PROJECT_ID}`
+  
+  // OR
+
+  // Maybe it is needed to list both [public and private] buckets
+  // var url = `https://storage.googleapis.com/storage/v1/b?project=${PROJECT_ID}&key=${API_KEY}`
+
+  // -------------------------------------
+  
+  const method = "GET";
+  var data = {};
+  var headers_additional = {};
+  
+	await call_fetch_methods(url, method, data, headers_additional)
+		.then(async function(xmlDocument) {
+			// console.log('xmlDocument: ', xmlDocument);
+			
+			file_array = [];
+			for (var i=0; i<xmlDocument.items.length; i++) {
+				file_array.push(xmlDocument.items[i].name);
+			}
+			console.log('file_array: ', file_array);
+			return file_array;
+		})
+		.catch(error => console.error(error));
+
+	// -------------------------------------
+  
+	// predefinedAcl
+
+}
+
+// -----------------------------------------------
+  
+async function List_objects_in_a_bucket() {
+	
+	// List contents of bucket to the output.
+
+	// https://cloud.google.com/storage/docs/json_api/v1/buckets/list
+
+	// -------------------------------------
+	
+	const BUCKET_NAME = document.getElementById("BUCKET_NAME").value;
+
+	// -------------------------------------
+	
+	var url = `https://storage.googleapis.com/storage/v1/b/${BUCKET_NAME}/o`
+  const method = "GET";
+  var data = {};
+  var headers_additional = {};
+  
+	await call_fetch_methods(url, method, data, headers_additional)
+		.then(async function(xmlDocument) {
+			// console.log('xmlDocument: ', xmlDocument);
+			
+			file_array = [];
+			for (var i=0; i<xmlDocument.items.length; i++) {
+				file_array.push(xmlDocument.items[i].name);
+			}
+			console.log('file_array: ', file_array);
+			return file_array;
+		})
+		.catch(error => console.error(error));
+
+	// -------------------------------------
+}
+  
+// -----------------------------------------------
+
+  
+async function send_a_file_to_a_Bucket() {
+
+}
+
+
+  
+// -----------------------------------------------
+// SUBFUNCTIONS
+// -----------------------------------------------
+async function call_fetch_methods(url, method, data, headers_additional) {
+	
+	const CORS_method_list = ['jQuery_CORS', 'fetch_CORS'];
+  
+	var response = undefined;
+	// response = undefined means that blob_object = null
+	// response = {} is not blob_object = null
+
+	for (var i=0; i<CORS_method_list.length; i++) {
+		try {
+			response = await run_fetch_method(url, method, data, CORS_method_list.at(i), headers_additional);
+			console.log('response: ', response);
+		} catch (error) {
+			console.log('error: ', error);
+		}
+    
+		if (response != undefined) {
+			break;
+		}
+	}
+}
+
+// -----------------------------------------------
+
+async function run_fetch_method(url, method, data, fetch_method, headers_additional) {
+		
+	var headers = {
+		"Referer": url,
+		"Origin": "https://codesolutions2.github.io",
+		"Connection": "keep-alive",
+		//"Sec-Fetch-Dest": "empty",
+		//"Sec-Fetch-Mode": "cors", 
+		//"Sec-Fetch-Site": "cross-site",
+		//"Sec-Fetch-User": "?1",
+		"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0",
+		"Access-Control-Allow-Origin": "*",
+		//'Access-Control-Allow-Credentials': false, 
+		//"Access-Control-Request-Method": method,
+		//"Access-Control-Request-Headers": 'content-type,x-pingother',
+		//'Cache-Control': 'max-age=0',
+	};
+
+	headers = Object.assign({}, headers, headers_additional);
+
+	// -------------------------------------
+  
+	if (fetch_method == "fetch_CORS") {
+		
+		var options = { 
+			method : method,
+			mode: 'cors',
+			headers: new Headers(headers),
+			cache: "no-cache",
+			// crossorigin: 'anonymous',
+			crossorigin: '*',
+			redirect: "follow"
+		};
+		
+		if (method == 'POST') {
+			options.body = JSON.stringify(data);
+		}
+		
+		return await fetch(url, options)
+			.then(res => res.json())
+			.then(async function(data) { return JSON.parse(JSON.stringify(data)); })
+			.catch(error => console.error("error: ", error));
+
+	} else {
+		
+		// jQuery_CORS
+    
+		var settings = {
+			type : method,
+			xhrFields: {responseType: 'json'},
+			dataType: 'json',
+			async: true,
+			crossDomain: true,
+			beforeSend: function(xhr) {xhr.withCredentials = true;},
+			// headers: new Headers(headers),
+			success: function(response) { console.log('Success'); },
+			error: function(xhr, status, error) { console.log('Error:', error); }
+		};
+		
+		if (method == 'POST') {
+			settings.body = JSON.stringify(data);
+		}
+		
+		return await $.ajax(url, [,settings]).done(function(response) { return response; });
+	}
+    
+}
+
+// -----------------------------------------------
+  
+</script>
+</body>
+</html>
