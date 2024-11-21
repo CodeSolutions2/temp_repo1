@@ -100,13 +100,55 @@ async function List_buckets() {
   
 async function send_a_file_to_a_Bucket() {
 
+	// Send an [image file] from a [path location], to a GCP Bucket.
+	
+  	// https://cloud.google.com/storage/docs/uploading-objects?hl=en#rest-upload-objects
+
+	// -------------------------------------
+	
+	const BUCKET_NAME = document.getElementById("BUCKET_NAME").value;
+
+	const API_KEY = document.getElementById("API_KEY").value;
+
+	// -------------------------------------
+
+	const [ctx, canvasElement] = await create_dynamic_canvasElement();
+	const [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement);
+
+	// -------------------------------------
+	
+	const OBJECT_LOCATION = ASCII_str;  // file path to file (ie: xxx/file.png)
+	
+	const OBJECT_CONTENT_TYPE = "image/png";  // the content type of the object (ie: image/png)
+	
+	const OBJECT_NAME = "file.png"; // the bucket file path (ie: file.png)
+
+	// -------------------------------------
+	
+	var url = `https://storage.googleapis.com/upload/storage/v1/b/${BUCKET_NAME}/o?uploadType=media&name=${OBJECT_NAME}`;
+
+	// -------------------------------------
+	
+	const method = "POST";
+
+	var data = {};
+	data["data-binary"] = `${OBJECT_LOCATION}`;
+
+	var headers_additional = {};
+	headers_additional["Content-Type"] = OBJECT_CONTENT_TYPE;
+	headers_additional.Authorization = 'Bearer ' + API_KEY;
+
+	var response = await call_fetch_methods(url, method, data, headers_additional)
+		.catch(error => console.error(error));
+	console.log('response: ', response);
+	
+	// -------------------------------------
 }
 
 
 
 
 // -----------------------------------------------
-
 
 async function translate_text() {
 
@@ -137,15 +179,31 @@ async function translate_text() {
   
 	var response = await call_fetch_methods(url, method, data, headers_additional)
 		.catch(error => console.error(error));
-
 	console.log('response: ', response);
 
 	// -------------------------------------
-  
-
 }
 
 
+// -----------------------------------------------
+
+	
+// -----------------------------------------------
+
+
+	
+// -----------------------------------------------
+
+
+	
+// -----------------------------------------------
+
+
+	
+// -----------------------------------------------
+
+
+	
 // -----------------------------------------------
 
 
@@ -246,7 +304,74 @@ async function run_fetch_method(url, method, data, fetch_method, headers_additio
 }
 
 // -----------------------------------------------
+
+async function create_dynamic_canvasElement() {
   
+	// Create a canvas element
+	var canvasElement = document.createElement('canvas');
+
+	// Set attributes of the canvas
+	canvasElement.width = width;
+	canvasElement.height = height;
+	
+	// Get the 2D rendering context of the canvas
+	var ctx = canvasElement.getContext("2d");
+
+	var r = Math.floor(Math.random()*255);
+	var g = Math.floor(Math.random()*255);
+  	var b = Math.floor(Math.random()*255);
+  	const alpha = Math.floor(Math.random()*100);
+  
+  	// ----------------------
+  
+  	// Make r, g, b and interesting color range.
+	// Make r from 1 to 255 if r>1, then output=r else output=1
+	r = r>0 ? r : 1;
+	g = g>0 ? g : 1;
+	b = b>0 ? b : 1;
+
+	// ----------------------
+	
+	ctx.fillStyle = `rgb(${r} ${g} ${b} / ${alpha}%)`;
+	ctx.fillRect(0, 0, width, height);
+	
+	return [ctx, canvasElement];
+}
+
+// -----------------------------------------------
+	
+async function convert_canvas_to_base64str(ctx, canvasElement) {
+	
+	// -----------------------------
+	
+	// Get canvas image
+	const uint8ClampedArray = await ctx.getImageData(0, 0, canvasElement.width, canvasElement.height); // TypedArray  Uint8ClampedArray
+	// console.log('uint8ClampedArray: ', uint8ClampedArray);
+
+	// Convert TypedArray to normalArray
+	const normalArray = await Array.from(uint8ClampedArray.data);
+	// console.log('normalArray: ', normalArray);
+	
+	// Convert [normalArray of bytes] to text_characters
+	var ASCII_stringArray = normalArray.map((val) => { return String.fromCharCode(val); });
+	// console.log('ASCII_stringArray: ', ASCII_stringArray);
+	
+	// Join all the ASCII characters to form a string
+	var ASCII_str = ASCII_stringArray.join('');
+	// console.log("ASCII_str: ", ASCII_str);
+	
+	// Transform ASCII string into a base64 string
+	var base64_string = btoa(ASCII_str);
+	// console.log("base64_string: ", base64_string);
+
+	// -----------------------------
+
+	return [ASCII_str, base64_string];
+}
+
+// -----------------------------------------------
+
+
 </script>
 </body>
 </html>
