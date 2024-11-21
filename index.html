@@ -39,17 +39,13 @@ async function List_objects_in_a_bucket() {
 	var data = {};
 	var headers_additional = {};
   
-	var file_array = await call_fetch_methods(url, method, data, headers_additional)
-		.then(async function(xmlDocument) {
-			// console.log('xmlDocument: ', xmlDocument);
-			let file_array = [];
-			for (var i=0; i<xmlDocument.items.length; i++) {
-				file_array.push(xmlDocument.items[i].name);
-			}
-			return file_array;
-		})
-		.catch(error => console.error(error));
+	var xmlDocument = await call_fetch_methods(url, method, data, headers_additional)
+	console.log('xmlDocument: ', xmlDocument);
 	
+	var file_array = [];
+	for (var i=0; i<xmlDocument.items.length; i++) {
+		file_array.push(xmlDocument.items[i].name);
+	}
 	console.log('file_array: ', file_array);
 	
 	// -------------------------------------
@@ -84,18 +80,13 @@ async function List_buckets() {
 	var data = {};
 	var headers_additional = {};
   
-	var file_array = await call_fetch_methods(url, method, data, headers_additional)
-		.then(async function(xmlDocument) {
-			// console.log('xmlDocument: ', xmlDocument);
-			
-			let file_array = [];
-			for (var i=0; i<xmlDocument.items.length; i++) {
-				file_array.push(xmlDocument.items[i].name);
-			}
-			return file_array;
-		})
-		.catch(error => console.error(error));
-
+	var xmlDocument = await call_fetch_methods(url, method, data, headers_additional)
+	console.log('xmlDocument: ', xmlDocument);
+	
+	var file_array = [];
+	for (var i=0; i<xmlDocument.items.length; i++) {
+		file_array.push(xmlDocument.items[i].name);
+	}
 	console.log('file_array: ', file_array);
 	
 	// -------------------------------------
