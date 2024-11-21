@@ -16,6 +16,8 @@
 <button id="send_a_file_to_a_Bucket" onclick="send_a_file_to_a_Bucket()">send_a_file_to_a_Bucket</button>
 
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
   
 <script>
 
@@ -32,12 +34,13 @@ async function List_buckets() {
   // -------------------------------------
 
   // It lists [public] buckets
-  var url = `https://storage.googleapis.com/storage/v1/b?project=${PROJECT_ID}`
+  // var url = `https://storage.googleapis.com/storage/v1/b?project=${PROJECT_ID}`
+	// code: 401, message: "Anonymous caller does not have storage.buckets.list access to the Google Cloud project. Permission 'storage.buckets.list' denied on resource (or it may not exist)."
   
   // OR
 
   // Maybe it is needed to list both [public and private] buckets
-  // var url = `https://storage.googleapis.com/storage/v1/b?project=${PROJECT_ID}&key=${API_KEY}`
+  var url = `https://storage.googleapis.com/storage/v1/b?project=${PROJECT_ID}&key=${API_KEY}`
 
   // -------------------------------------
   
