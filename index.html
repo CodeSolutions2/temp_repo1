@@ -23,6 +23,42 @@
 
 // -----------------------------------------------
 
+// WORKS
+async function List_objects_in_a_bucket() {
+	
+	// List contents of bucket to the output.
+
+	// https://cloud.google.com/storage/docs/json_api/v1/buckets/list
+
+	// -------------------------------------
+	
+	const BUCKET_NAME = document.getElementById("BUCKET_NAME").value;
+
+	// -------------------------------------
+	
+	var url = `https://storage.googleapis.com/storage/v1/b/${BUCKET_NAME}/o`
+	const method = "GET";
+	var data = {};
+	var headers_additional = {};
+  
+	await call_fetch_methods(url, method, data, headers_additional)
+		.then(async function(xmlDocument) {
+			// console.log('xmlDocument: ', xmlDocument);
+			
+			file_array = [];
+			for (var i=0; i<xmlDocument.items.length; i++) {
+				file_array.push(xmlDocument.items[i].name);
+			}
+			console.log('file_array: ', file_array);
+			return file_array;
+		})
+		.catch(error => console.error(error));
+
+	// -------------------------------------
+}
+  
+// -----------------------------------------------
+	
 async function List_buckets() {
 
 	// Retrieves a list of buckets for a given project, ordered in the list lexicographically by name.
@@ -69,40 +105,7 @@ async function List_buckets() {
 
 // -----------------------------------------------
   
-async function List_objects_in_a_bucket() {
-	
-	// List contents of bucket to the output.
 
-	// https://cloud.google.com/storage/docs/json_api/v1/buckets/list
-
-	// -------------------------------------
-	
-	const BUCKET_NAME = document.getElementById("BUCKET_NAME").value;
-
-	// -------------------------------------
-	
-	var url = `https://storage.googleapis.com/storage/v1/b/${BUCKET_NAME}/o`
-  const method = "GET";
-  var data = {};
-  var headers_additional = {};
-  
-	await call_fetch_methods(url, method, data, headers_additional)
-		.then(async function(xmlDocument) {
-			// console.log('xmlDocument: ', xmlDocument);
-			
-			file_array = [];
-			for (var i=0; i<xmlDocument.items.length; i++) {
-				file_array.push(xmlDocument.items[i].name);
-			}
-			console.log('file_array: ', file_array);
-			return file_array;
-		})
-		.catch(error => console.error(error));
-
-	// -------------------------------------
-}
-  
-// -----------------------------------------------
 
   
 async function send_a_file_to_a_Bucket() {
