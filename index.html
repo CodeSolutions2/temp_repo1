@@ -49,7 +49,7 @@ async function List_buckets() {
 		.then(async function(xmlDocument) {
 			// console.log('xmlDocument: ', xmlDocument);
 			
-			file_array = [];
+			var file_array = [];
 			for (var i=0; i<xmlDocument.items.length; i++) {
 				file_array.push(xmlDocument.items[i].name);
 			}
