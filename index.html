@@ -12,7 +12,7 @@
 <button id="List_objects_in_a_bucket" onclick="List_objects_in_a_bucket()">List_objects_in_a_bucket</button>
 <button id="send_a_file_to_a_Bucket" onclick="send_a_file_to_a_Bucket()">send_a_file_to_a_Bucket</button>
 <button id="translate_text" onclick="translate_text()">translate_text</button>
-
+<!-- <button id="add_data_to_a_bigquery_table" onclick="add_data_to_a_bigquery_table()">add_data_to_a_bigquery_table</button> -->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
@@ -231,6 +231,7 @@ async function call_fetch_methods(url, method, data, headers_additional) {
 			break;
 		}
 	}
+	return response;
 }
 
 // -----------------------------------------------
