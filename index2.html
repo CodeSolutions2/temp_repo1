@@ -28,6 +28,8 @@
 	
 <button id="using_language_googleapis_REST_API" onclick="using_language_googleapis_REST_API()">using_language_googleapis_REST_API</button>
 
+<button id="Gemini_REST_API" onclick="Gemini_REST_API()">Gemini_REST_API</button>
+
 <!-- ----------------------------------------------- -->
 	
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -76,7 +78,7 @@ async function obtain_temp_token_for_API_KEY_and_serviceAccount() {
 
 	const service_account_key_id_obj_string = document.getElementById("service_account_key_id").value;
 	const service_account_key_id_obj = JSON.parse(service_account_key_id_obj_string);
-	const SERVICE_ACCOUNT_EMAIL = `${service_account_key_id_obj.client_email}`;
+	const SERVICE_ACCOUNT_EMAIL = service_account_key_id_obj.client_email;
 
 	// Try to obtain a temporary access_token specifically for a PROJECT_ID and a [service account with specific resource permissions, like storage.buckets.list access]
 	
@@ -100,7 +102,7 @@ async function obtain_temp_token_for_API_KEY_and_serviceAccount() {
 	console.log('xmlDocument: ', xmlDocument);
 
 	} else if (ways == "way1") {
-		const url = "https://oauth2.googleapis.com/token";
+		const url = service_account_key_id_obj.token_uri;
 		  
 		const method = 'POST';
 		  
@@ -394,7 +396,34 @@ async function using_language_googleapis_REST_API() {
 	
 // -----------------------------------------------
 
+// Gemini call
+async function Gemini_REST_API() {
 
+	const API_KEY = document.getElementById("API_KEY").value;
+
+	// -------------------------------------
+
+	var url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
+	
+	// -------------------------------------
+
+	var prompt = "please give a rest api example for how to obtain an access token for a PROJECT_ID API_KEY and service account"
+	
+        var contents = [{"parts": [{"text": prompt}]}];
+        var data = {"contents": contents};
+  
+	var headers_additional = {"Content-Type": "application/json"};
+	// headers_additional.Authorization = 'Bearer ' + API_KEY;
+
+	// -------------------------------------
+
+	var response = await call_fetch_methods(url, method, data, headers_additional)
+		.catch(error => console.error(error));
+	console.log('response: ', response);
+	// JSON.parse(JSON.stringify(res))['candidates'][0]['content']['parts'][0]['text'];
+
+	// -------------------------------------
+}
 	
 // -----------------------------------------------
 
