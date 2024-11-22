@@ -96,6 +96,9 @@ async function obtain_temp_token_for_API_KEY_and_serviceAccount() {
 		// headers_additional["Content-Type"] = "application/json";
 		headers_additional.Authorization = 'Bearer ' + API_KEY;
 
+		var xmlDocument = await call_fetch_methods(url, method, data, headers_additional)
+	console.log('xmlDocument: ', xmlDocument);
+
 	} else if (ways == "way1") {
 		const url = "https://oauth2.googleapis.com/token";
 		  
@@ -111,10 +114,10 @@ async function obtain_temp_token_for_API_KEY_and_serviceAccount() {
 		headers_additional["Content-Type"] = "application/x-www-form-urlencoded";
 		headers_additional["Authorization"] = "Bearer " + API_KEY;
 
-	}
-	
-	var xmlDocument = await call_fetch_methods(url, method, data, headers_additional)
+		var xmlDocument = await call_fetch_methods(url, method, data, headers_additional)
 	console.log('xmlDocument: ', xmlDocument);
+
+	}
 	
 }
 	
