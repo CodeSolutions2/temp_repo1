@@ -39,7 +39,7 @@
 <script>
 
 // -----------------------------------------------
-
+	
 // WORKS
 async function List_objects_in_a_bucket() {
 	
@@ -72,6 +72,7 @@ async function List_objects_in_a_bucket() {
   
 // -----------------------------------------------
 
+// CORS Error
 async function obtain_temp_token_for_API_KEY_and_serviceAccount() {
 
 	const API_KEY = document.getElementById("API_KEY").value;
@@ -124,8 +125,9 @@ async function obtain_temp_token_for_API_KEY_and_serviceAccount() {
 }
 	
 // -----------------------------------------------
-	
-async function List_buckets(ACCESS_TOKEN) {
+
+// Need Temporary Access Token
+async function List_buckets() {
 
 	// Retrieves a list of buckets for a given project, ordered in the list lexicographically by name.
 	
@@ -136,8 +138,9 @@ async function List_buckets(ACCESS_TOKEN) {
 	const PROJECT_ID = document.getElementById("PROJECT_ID").value;
 	
 	// -------------------------------------
-	
-	var url = `https://storage.googleapis.com/storage/v1/b?project=${PROJECT_ID}&key=${ACCESS_TOKEN}`
+
+	var url = `https://storage.googleapis.com/storage/v1/b?project=${PROJECT_ID}`
+	// var url = `https://storage.googleapis.com/storage/v1/b?project=${PROJECT_ID}&key=${ACCESS_TOKEN}`
 	
 	// -------------------------------------
   
@@ -159,9 +162,6 @@ async function List_buckets(ACCESS_TOKEN) {
 }
 
 // -----------------------------------------------
-  
-
-
   
 async function send_a_file_to_a_Bucket() {
 
@@ -206,6 +206,7 @@ async function send_a_file_to_a_Bucket() {
 	var response = await call_fetch_methods(url, method, data, headers_additional)
 		.catch(error => console.error(error));
 	console.log('response: ', response);
+	// "Method Not Allowed" ??? 405
 	
 	// -------------------------------------
 }
@@ -215,6 +216,7 @@ async function send_a_file_to_a_Bucket() {
 
 // -----------------------------------------------
 
+// CORS Error
 async function translate_text() {
 
 	const PROJECT_ID = document.getElementById("PROJECT_ID").value;
@@ -271,6 +273,8 @@ async function list_bigquery_datasets_per_project_id() {
   
 	var xmlDocument = await call_fetch_methods(url, method, data, headers_additional)
 	console.log('xmlDocument: ', xmlDocument);
+
+	//  "error": {\n    "code": 401,\n    "message": "API keys are not supported by this API. Expected OAuth2 access token or other authentication credentials that assert a principal. See https://cloud.google.com/docs/authentication",\n    "errors": [\n      {\n        "message": "Login Required.",\n        "domain": "global",\n        "reason": "required",\n        "location": "Authorization",\n        "locationType": "header"\n      }\n    ],\n    "status": "UNAUTHENTICATED",\n    "details": [\n      {\n        "@type": "type.googleapis.com/google.rpc.ErrorInfo",\n        "reason": "CREDENTIALS_MISSING",\n        "domain": "googleapis.com",\n        "metadata": {\n          "method": "google.cloud.bigquery.v2.DatasetService.ListDatasets",\n          "service": "bigquery.googleapis.com"\n        }\n      }\n    ]\n  }\n}\n'
 	
 	// var file_array = [];
 	// for (var i=0; i<xmlDocument.items.length; i++) {
@@ -349,8 +353,14 @@ async function add_data_to_a_bigquery_table() {
 
 // -----------------------------------------------
 
+// CORS Error
 async function using_language_googleapis_REST_API() {
 
+
+	// gcloud services enable language.googleapis.com 
+
+	// -------------------------------------
+	
 	const PROJECT_ID = document.getElementById("PROJECT_ID").value;
 	
 	const API_KEY = document.getElementById("API_KEY").value;
