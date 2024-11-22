@@ -3,14 +3,22 @@
 <head></head>
 <body>
 
+<input id="service_account_key_id" type="text" value="" placeholder="service_account_key_id" rows="10" cols="100" style="display:block; text-align: left; width: 100px;">
+
 <input id="API_KEY" type="text" value="" placeholder="API_KEY" rows="10" cols="100" style="display:block; text-align: left; width: 100px;">
+
 <input id="PROJECT_ID" type="text" value="" placeholder="PROJECT_ID" rows="10" cols="100" style="display:block; text-align: left; width: 300px;">
+
 <input id="BUCKET_NAME" type="text" value="" placeholder="BUCKET_NAME" rows="10" cols="100" style="display:block; text-align: left; width: 300px;">
 
 <!-- ----------------------------------------------- -->
-	
-<button id="List_buckets" onclick="List_buckets()">List_buckets</button>
+
 <button id="List_objects_in_a_bucket" onclick="List_objects_in_a_bucket()">List_objects_in_a_bucket</button>
+
+<button id="obtain_temp_token_for_API_KEY_and_serviceAccount" onclick="obtain_temp_token_for_API_KEY_and_serviceAccount()">obtain_temp_token_for_API_KEY_and_serviceAccount</button>
+
+<button id="List_buckets" onclick="List_buckets()">List_buckets</button>
+
 <button id="send_a_file_to_a_Bucket" onclick="send_a_file_to_a_Bucket()">send_a_file_to_a_Bucket</button>
 	
 <button id="translate_text" onclick="translate_text()">translate_text</button>
@@ -61,28 +69,71 @@ async function List_objects_in_a_bucket() {
 }
   
 // -----------------------------------------------
+
+async function obtain_temp_token_for_API_KEY_and_serviceAccount() {
+
+	const API_KEY = document.getElementById("API_KEY").value;
+
+	const service_account_key_id_obj_string = document.getElementById("service_account_key_id").value;
+	const service_account_key_id_obj = JSON.parse(service_account_key_id_obj_string);
+	const SERVICE_ACCOUNT_EMAIL = `${service_account_key_id_obj.client_email}`;
+
+	// Try to obtain a temporary access_token specifically for a PROJECT_ID and a [service account with specific resource permissions, like storage.buckets.list access]
 	
-async function List_buckets() {
+	var ways = "way1";
+	
+	if (ways == "way0") {
+		
+		const url = `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${SERVICE_ACCOUNT_EMAIL}:generateAccessToken`;
+	  
+		const method = 'POST';
+		  
+		const data = {
+		    "scope": ["https://www.googleapis.com/auth/cloud-platform"],
+		};
+	
+		var headers_additional = {};
+		// headers_additional["Content-Type"] = "application/json";
+		headers_additional.Authorization = 'Bearer ' + API_KEY;
+
+	} else if (ways == "way1") {
+		const url = "https://oauth2.googleapis.com/token";
+		  
+		const method = 'POST';
+		  
+		const data = {
+			"grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+			"assertion": service_account_key_id_obj_string,
+			"key": API_KEY,
+		};
+		
+		var headers_additional = {};
+		headers_additional["Content-Type"] = "application/x-www-form-urlencoded";
+		headers_additional["Authorization"] = "Bearer " + API_KEY;
+
+	}
+	
+	var xmlDocument = await call_fetch_methods(url, method, data, headers_additional)
+	console.log('xmlDocument: ', xmlDocument);
+	
+}
+	
+// -----------------------------------------------
+	
+async function List_buckets(ACCESS_TOKEN) {
 
 	// Retrieves a list of buckets for a given project, ordered in the list lexicographically by name.
 	
 	// https://cloud.google.com/storage/docs/json_api/v1/buckets/list
-	
-	const PROJECT_ID = document.getElementById("PROJECT_ID").value;
-
-	const API_KEY = document.getElementById("API_KEY").value;
 
 	// -------------------------------------
-
-	// It lists [public] buckets
-	// var url = `https://storage.googleapis.com/storage/v1/b?project=${PROJECT_ID}`
-	// code: 401, message: "Anonymous caller does not have storage.buckets.list access to the Google Cloud project. Permission 'storage.buckets.list' denied on resource (or it may not exist)."
-  
-	// OR
-
-	// Maybe it is needed to list both [public and private] buckets
-	var url = `https://storage.googleapis.com/storage/v1/b?project=${PROJECT_ID}&key=${API_KEY}`
-
+	
+	const PROJECT_ID = document.getElementById("PROJECT_ID").value;
+	
+	// -------------------------------------
+	
+	var url = `https://storage.googleapis.com/storage/v1/b?project=${PROJECT_ID}&key=${ACCESS_TOKEN}`
+	
 	// -------------------------------------
   
 	const method = "GET";
@@ -183,7 +234,7 @@ async function translate_text() {
 	};
 	
 	var headers_additional = {};
-	headers_additional["Content-Type"] = "application/json";
+	headers_additional["Content-Type"] = "";
 	headers_additional.Authorization = 'Bearer ' + API_KEY;
   
 	var response = await call_fetch_methods(url, method, data, headers_additional)
