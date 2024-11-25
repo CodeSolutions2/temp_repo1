@@ -8,29 +8,30 @@
     <br>
 <button id="run_selection" onclick="run_selection()">run_selection</button>
 
+	  
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/toxicity">
 
   <script>
 
 async function run_selection() {
-
-const threshold = 0.9;
-
+	
+	const threshold = 0.9;
 
 
 	
-toxicity.load(threshold)
-  .then(model_response => {
-
-	  var text = [document.getElementById('input_text').value]; 
-		console.log("text: ", text);
-	  
-	const sentences = model_response.classify(text)
-	  .then(predictions => {
-		  console.log("predictions: ", predictions);
+		
+	toxicity.load(threshold)
+	  .then(model_response => {
+	
+		  var text = [document.getElementById('input_text').value]; 
+			console.log("text: ", text);
+		  
+		const sentences = model_response.classify(text)
+		  .then(predictions => {
+			  console.log("predictions: ", predictions);
+		  })
 	  })
-  })
-	console.log("out: ", out);
+		console.log("out: ", out);
 	
 
 
