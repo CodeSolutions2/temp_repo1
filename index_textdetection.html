@@ -1,0 +1,36 @@
+ <!DOCTYPE html>
+<html>
+  <head></head>
+  <body>
+
+
+<textarea id="input_text" rows="4" cols="100" placeholder="input_text"></textarea>
+    <br>
+<button id="run_selection" onclick="run_selection()">run_selection</button>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/toxicity">
+
+  <script>
+
+async function run_selection() {
+
+const threshold = 0.9;
+
+toxicity.load(threshold)
+  .then(model_response => {
+
+
+  })
+	console.log("out: ", out);
+	var text = document.getElementById('input_text').value; 
+console.log("out: ", out);
+
+
+
+
+}
+
+
+    </script>
+  </body>
+</html>
